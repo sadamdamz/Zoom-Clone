@@ -1,13 +1,12 @@
 /* eslint-disable prettier/prettier */
-import React, {useState, useRef, useEffect} from 'react';
-import {StyleSheet, Text, SafeAreaView, TouchableOpacity} from 'react-native';
+import React, {useState} from 'react';
+import {StyleSheet, Text, SafeAreaView} from 'react-native';
 import {Block} from 'galio-framework';
 import {Button} from '../components';
 import PhoneInput from 'react-native-phone-number-input';
 import OTPTextInput from 'react-native-otp-textinput';
-import {Colors} from 'react-native/Libraries/NewAppScreen';
 import { Theme} from '../constants';
-import {signInWithPhoneNumber,confirmOtp} from '../auth/phone';
+import {signInWithPhoneNumber} from '../auth/phone';
 
 
 const PhoneVerify = (props) => {
@@ -16,7 +15,6 @@ const PhoneVerify = (props) => {
   const [loading, setLoading] = useState(false);
   const [confirm, setConfirm] = useState(null);
   const [otp, setOtp] = useState(null);
-  let otpInput = useRef(null);
   const {navigation} = props;
 
   const signin = async(number) => {

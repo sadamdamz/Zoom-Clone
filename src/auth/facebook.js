@@ -8,8 +8,6 @@ async function onFacebookButtonPress() {
     'email',
   ]);
 
-  console.log(result);
-
   if (result.isCancelled) {
     throw 'User cancelled the login process';
   }
