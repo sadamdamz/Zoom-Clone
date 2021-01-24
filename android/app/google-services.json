@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "798089911453",
+    "project_id": "video-app-4f774",
+    "storage_bucket": "video-app-4f774.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:798089911453:android:8c101cae41da748f194874",
+        "android_client_info": {
+          "package_name": "com.zoom.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "798089911453-ejqd03skchj5cpoq1m0qvlup3vncioio.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.zoom.app",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "798089911453-hf7cbe3c49imvd0oc1ek624u6q2h4hh3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDrhmNJdUg7pb-naO-hRw8nJL8ThrX9MWs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "798089911453-hf7cbe3c49imvd0oc1ek624u6q2h4hh3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

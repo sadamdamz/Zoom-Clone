@@ -1,14 +1,16 @@
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
+# add pods for desired Firebase products
+# https://firebase.google.com/docs/ios/setup#available-pods
 
-platform :ios, '10.0'
+platform :ios, '11.0'
 
-target 'demo' do
+target 'ZoomApp' do
   config = use_native_modules!
 
   use_react_native!(:path => config["reactNativePath"])
 
-  target 'demoTests' do
+  target 'ZoomAppTests' do
     inherit! :complete
     # Pods for testing
   end
@@ -23,10 +25,10 @@ target 'demo' do
   end
 end
 
-target 'demo-tvOS' do
-  # Pods for demo-tvOS
+target 'ZoomApp-tvOS' do
+  # Pods for ZoomApp-tvOS
 
-  target 'demo-tvOSTests' do
+  target 'ZoomApp-tvOSTests' do
     inherit! :search_paths
     # Pods for testing
   end

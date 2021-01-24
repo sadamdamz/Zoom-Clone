@@ -10,6 +10,7 @@ import {
 import {Button} from '../components/index';
 import {Block} from 'galio-framework';
 import {Images, Theme} from '../constants';
+import {Google, Facebook} from '../auth';
 
 class Home extends Component {
   constructor(props) {
@@ -54,10 +55,22 @@ class Home extends Component {
                 <Image source={Images.Mail} style={styles.imgIcon} />
               </Block>
               <Block>
-                <Image source={Images.Facebook} style={styles.imgIcon} />
+                <TouchableOpacity
+                  onPress={() =>
+                    Facebook().then(() =>
+                      console.log('Signed in with FaceBook!'),
+                    )
+                  }>
+                  <Image source={Images.Facebook} style={styles.imgIcon} />
+                </TouchableOpacity>
               </Block>
               <Block>
-                <Image source={Images.Google} style={styles.imgIcon} />
+                <TouchableOpacity
+                  onPress={() =>
+                    Google().then(() => console.log('Signed in with Google!'))
+                  }>
+                  <Image source={Images.Google} style={styles.imgIcon} />
+                </TouchableOpacity>
               </Block>
               <Block>
                 <TouchableOpacity

@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">demo</string>
+    <string name="app_name">Zoom App</string>
+    <string name="facebook_app_id">958890974645947</string>
+    <string name="fb_login_protocol_scheme">fb958890974645947</string>
 </resources>
