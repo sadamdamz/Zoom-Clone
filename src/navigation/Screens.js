@@ -4,7 +4,7 @@ import SignIn from '../screens/Signin';
 import SignUp from '../screens/Signup';
 import JoinMeeting from '../screens/JoinMeeting';
 import MeetingRoom from '../screens/MeetingRoom';
-import Google from '../auth/google';
+import Phone from '../auth/phone';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 
@@ -16,8 +16,8 @@ class Screens extends Component {
       <NavigationContainer>
         <Stack.Navigator>
           {/* <Stack.Screen
-            name="Google"
-            component={Google}
+            name="Phone"
+            component={Phone}
             options={{headerShown: false}}
           /> */}
           <Stack.Screen

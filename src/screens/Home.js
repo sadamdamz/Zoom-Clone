@@ -11,6 +11,12 @@ import {Button} from '../components/index';
 import {Block} from 'galio-framework';
 import {Images, Theme} from '../constants';
 import {Google, Facebook} from '../auth';
+import {GoogleSignin} from '@react-native-community/google-signin';
+
+GoogleSignin.configure({
+  webClientId:
+    '798089911453-hf7cbe3c49imvd0oc1ek624u6q2h4hh3.apps.googleusercontent.com',
+});
 
 class Home extends Component {
   constructor(props) {
