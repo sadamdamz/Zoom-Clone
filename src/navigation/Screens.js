@@ -4,27 +4,41 @@ import SignIn from '../screens/Signin';
 import SignUp from '../screens/Signup';
 import JoinMeeting from '../screens/JoinMeeting';
 import MeetingRoom from '../screens/MeetingRoom';
-import Phone from '../auth/phone';
+import PhoneVerify from '../screens/PhoneVerify';
+import Otp from '../screens/Otp';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 
 const Stack = createStackNavigator();
 
 class Screens extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      otp: {},
+    };
+  }
+
+  handleOtp = (confirm) => {
+    this.setState({otp: confirm});
+  };
+
   render() {
+    const {otp} = this.state;
     return (
       <NavigationContainer>
         <Stack.Navigator>
-          {/* <Stack.Screen
-            name="Phone"
-            component={Phone}
-            options={{headerShown: false}}
-          /> */}
           <Stack.Screen
             name="Home"
             component={Home}
             options={{headerShown: false}}
           />
+          <Stack.Screen
+            name="Phone Verification"
+            component={PhoneVerify}
+            handleOtp={this.handleOtp}
+          />
+          <Stack.Screen name="Otp" component={Otp} otp={otp} />
           <Stack.Screen
             name="Signin"
             component={SignIn}

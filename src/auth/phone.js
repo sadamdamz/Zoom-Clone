@@ -2,43 +2,56 @@ import React, {useState} from 'react';
 import {Button, TextInput} from 'react-native';
 import auth from '@react-native-firebase/auth';
 
-function PhoneSignIn() {
-  // If null, no SMS has been sent
-  const [confirm, setConfirm] = useState(null);
+export const signInWithPhoneNumber = async (phoneNumber) => {
+  const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
+  return confirmation;
+};
 
-  const [code, setCode] = useState('');
-
-  // Handle the button press
-  async function signInWithPhoneNumber(phoneNumber) {
-    console.log(phoneNumber);
-    const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
-    alert(JSON.stringify(confirmation));
-    setConfirm(confirmation);
+export const confirmOtp = async (confirm, otp) => {
+  try {
+    let data = await confirm.confirm(otp);
+    return data;
+  } catch (error) {
+    return error;
   }
+};
 
-  async function confirmCode() {
-    try {
-      await confirm.confirm(code);
-    } catch (error) {
-      console.log('Invalid code.');
-    }
-  }
+// function PhoneSignIn() {
+//   // If null, no SMS has been sent
+//   const [confirm, setConfirm] = useState(null);
 
-  if (!confirm) {
-    return (
-      <Button
-        title="Phone Number Sign In"
-        onPress={() => signInWithPhoneNumber('+91 87783 06506')}
-      />
-    );
-  }
+//   const [code, setCode] = useState('');
 
-  return (
-    <>
-      <TextInput value={code} onChangeText={(text) => setCode(text)} />
-      <Button title="Confirm Code" onPress={() => confirmCode()} />
-    </>
-  );
-}
+//   // Handle the button press
+//   async function signInWithPhoneNumber(phoneNumber) {
+//     console.log(phoneNumber);
+//     const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
+//     setConfirm(confirmation);
+//   }
 
-export default PhoneSignIn;
+//   async function confirmCode() {
+//     try {
+//       await confirm.confirm(code);
+//     } catch (error) {
+//       console.log('Invalid code.');
+//     }
+//   }
+
+//   if (!confirm) {
+//     return (
+//       <Button
+//         title="Phone Number Sign In"
+//         onPress={() => signInWithPhoneNumber('+91 87783 06506')}
+//       />
+//     );
+//   }
+
+//   return (
+//     <>
+//       <TextInput value={code} onChangeText={(text) => setCode(text)} />
+//       <Button title="Confirm Code" onPress={() => confirmCode()} />
+//     </>
+//   );
+// }
+
+// export default PhoneSignIn;

@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, ScrollView} from 'react-native';
+import {StyleSheet, Text, ScrollView, TouchableOpacity} from 'react-native';
 import {Block} from 'galio-framework';
 import {Input, Button} from '../components';
 import {Theme} from '../constants';
@@ -13,6 +13,7 @@ class Signup extends Component {
   };
 
   render() {
+    const {navigation} = this.props;
     return (
       <ScrollView style={styles.scroll}>
         <Block safe flex style={styles.container}>
@@ -60,6 +61,12 @@ class Signup extends Component {
               <Text style={styles.btnTxt}>Create Account</Text>
             </Button>
           </Block>
+          <Block style={styles.account}>
+            <Text>Already have an Account?</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Signin')}>
+              <Text style={styles.signIn}>Sign In</Text>
+            </TouchableOpacity>
+          </Block>
         </Block>
       </ScrollView>
     );
@@ -94,5 +101,13 @@ const styles = StyleSheet.create({
   btnTxt: {
     color: Theme.COLORS.WHITE,
     fontWeight: '700',
+  },
+  account: {
+    paddingTop: 20,
+  },
+  signIn: {
+    color: Theme.COLORS.BLUE,
+    fontWeight: '700',
+    textAlign: 'center',
   },
 });

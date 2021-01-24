@@ -80,7 +80,7 @@ class Home extends Component {
               </Block>
               <Block>
                 <TouchableOpacity
-                  onPress={() => navigation.navigate('MeetingRoom')}>
+                  onPress={() => navigation.navigate('Phone Verification')}>
                   <Image source={Images.Whatsapp} style={styles.imgIcon} />
                 </TouchableOpacity>
               </Block>
