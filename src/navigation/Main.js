@@ -11,16 +11,11 @@ class Main extends Component {
   }
   render() {
     const {user} = this.props;
-    console.log(user);
     return (
       <MainStack.Navigator>
-        <MainStack.Screen
-          name="Dashboard"
-          component={Dashboard}
-          options={{headerShown: false}}
-          user={user}
-          {...this.props}
-        />
+        <MainStack.Screen name="Dashboard" options={{headerShown: false}}>
+          {(props) => <Dashboard {...props} user={user} />}
+        </MainStack.Screen>
       </MainStack.Navigator>
     );
   }

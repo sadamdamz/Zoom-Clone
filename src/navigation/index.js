@@ -25,16 +25,7 @@ const index = () => {
     return null;
   }
 
-  // if (!user) {
-  //   return <Screens />;
-  // }
-
-  return (
-    <Screens user={user} />
-    // <View>
-    //   <Text>Welcome {user.email}</Text>
-    // </View>
-  );
+  return <Screens user={user} />;
 };
 
 export default index;

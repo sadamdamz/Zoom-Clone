@@ -19,13 +19,9 @@ class Screens extends Component {
       <NavigationContainer>
         <Stack.Navigator>
           {user ? (
-            <Stack.Screen
-              name="Main"
-              component={(props) => <Main {...props} />}
-              options={{headerShown: false}}
-              user={user}
-              {...this.props}
-            />
+            <Stack.Screen name="Main" options={{headerShown: false}}>
+              {(props) => <Main {...props} user={user} />}
+            </Stack.Screen>
           ) : (
             <Stack.Screen
               name="Auth"
