@@ -1,16 +1,8 @@
 import React, {Component} from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  SafeAreaView,
-  Image,
-  TouchableOpacity,
-} from 'react-native';
+import {StyleSheet, Text, View, SafeAreaView} from 'react-native';
 import {Button} from '../components/index';
 import {Block} from 'galio-framework';
-import {Images, Theme} from '../constants';
-import {Google, Facebook} from '../auth';
+import {Theme} from '../constants';
 import {GoogleSignin} from '@react-native-community/google-signin';
 
 GoogleSignin.configure({

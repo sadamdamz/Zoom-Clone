@@ -41,26 +41,17 @@ class Signup extends Component {
           <Block style={styles.children}>
             <Text>Phone Number</Text>
             <Input
-              placeholder="phone"
+              placeholder="Phone"
               onChangeText={(e) => this.handleChange(e, 'phone')}
             />
           </Block>
           <Block style={styles.children}>
-            <Text>Create Password</Text>
+            <Text>Password</Text>
             <Input
-              placeholder="password"
+              placeholder="Password"
               password
               viewPass
               onChangeText={(e) => this.handleChange(e, 'name')}
-            />
-          </Block>
-          <Block style={styles.children}>
-            <Text>Retype Password</Text>
-            <Input
-              placeholder="confirmPassword"
-              password
-              viewPass
-              onChangeText={(e) => this.handleChange(e, 'confirmPassword')}
             />
           </Block>
           <Block style={styles.btnChildren}>
