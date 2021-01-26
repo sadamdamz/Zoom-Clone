@@ -10,6 +10,8 @@ import {Block} from 'galio-framework';
 import {Input, Button} from '../components';
 import {Images, Theme} from '../constants';
 import {Google, Facebook} from '../auth';
+import {SignUpValidation} from '../helper/formik';
+import {Formik} from 'formik';
 import auth from '@react-native-firebase/auth';
 
 class Signup extends Component {
@@ -28,8 +30,8 @@ class Signup extends Component {
     this.setState({data});
   };
 
-  handleSubmit = () => {
-    this.setState({loading: true});
+  handleSubmit = (datas) => {
+    this.setState({loading: true, data: datas});
     this.createEmail();
   };
 
@@ -61,46 +63,85 @@ class Signup extends Component {
     return (
       <ScrollView style={styles.scroll}>
         <Block safe flex style={styles.container}>
-          <Block style={styles.children}>
-            <Text>Name</Text>
-            <Input
-              placeholder="Name"
-              onChangeText={(e) => this.handleChange(e, 'name')}
-            />
-          </Block>
-          <Block style={styles.children}>
-            <Text>Email ID</Text>
-            <Input
-              placeholder="Email"
-              onChangeText={(e) => this.handleChange(e, 'email')}
-            />
-          </Block>
-          <Block style={styles.children}>
-            <Text>Phone Number</Text>
-            <Input
-              placeholder="Phone"
-              type="number-pad"
-              onChangeText={(e) => this.handleChange(e, 'phone')}
-            />
-          </Block>
-          <Block style={styles.children}>
-            <Text>Password</Text>
-            <Input
-              placeholder="Password"
-              password
-              viewPass
-              onChangeText={(e) => this.handleChange(e, 'password')}
-            />
-          </Block>
-          <Block style={styles.btnChildren}>
-            <Button
-              style={styles.submitBtn}
-              loading={loading}
-              onPress={this.handleSubmit}
-              color={Theme.COLORS.BLUE}>
-              <Text style={styles.btnTxt}>Create Account</Text>
-            </Button>
-          </Block>
+          <Formik
+            validationSchema={SignUpValidation}
+            initialValues={{email: '', password: '', name: '', phone: ''}}
+            onSubmit={(values) => this.handleSubmit(values)}>
+            {({handleChange, handleBlur, handleSubmit, values, errors}) => (
+              <>
+                <Block style={styles.children}>
+                  <Text>Name</Text>
+                  <Input
+                    placeholder="Name"
+                    onChangeText={handleChange('name')}
+                    onBlur={handleBlur('name')}
+                    value={values.name}
+                  />
+                  {errors.name && (
+                    <Text style={{fontSize: 10, color: 'red'}}>
+                      {errors.name}
+                    </Text>
+                  )}
+                </Block>
+                <Block style={styles.children}>
+                  <Text>Email ID</Text>
+                  <Input
+                    placeholder="Email"
+                    onChangeText={handleChange('email')}
+                    onBlur={handleBlur('email')}
+                    value={values.email}
+                    keyboardType="email-address"
+                  />
+                  {errors.email && (
+                    <Text style={{fontSize: 10, color: 'red'}}>
+                      {errors.email}
+                    </Text>
+                  )}
+                </Block>
+                <Block style={styles.children}>
+                  <Text>Phone Number</Text>
+                  <Input
+                    placeholder="Phone"
+                    type="number-pad"
+                    onChangeText={handleChange('phone')}
+                    onBlur={handleBlur('phone')}
+                    value={values.phone}
+                  />
+                  {errors.phone && (
+                    <Text style={{fontSize: 10, color: 'red'}}>
+                      {errors.phone}
+                    </Text>
+                  )}
+                </Block>
+                <Block style={styles.children}>
+                  <Text>Password</Text>
+                  <Input
+                    placeholder="Password"
+                    password
+                    viewPass
+                    onChangeText={handleChange('password')}
+                    onBlur={handleBlur('password')}
+                    value={values.password}
+                    secureTextEntry
+                  />
+                  {errors.password && (
+                    <Text style={{fontSize: 10, color: 'red'}}>
+                      {errors.password}
+                    </Text>
+                  )}
+                </Block>
+                <Block style={styles.btnChildren}>
+                  <Button
+                    style={styles.submitBtn}
+                    loading={loading}
+                    onPress={handleSubmit}
+                    color={Theme.COLORS.BLUE}>
+                    <Text style={styles.btnTxt}>Create Account</Text>
+                  </Button>
+                </Block>
+              </>
+            )}
+          </Formik>
           <Block row space="around" style={styles.loginUsing}>
             <Block>
               <TouchableOpacity

@@ -10,6 +10,8 @@ import {Button} from '../components/index';
 import {Block} from 'galio-framework';
 import {Theme} from '../constants';
 import {Input} from '../components';
+import {LoginValidation} from '../helper/formik';
+import {Formik} from 'formik';
 import auth from '@react-native-firebase/auth';
 
 class Signin extends Component {
@@ -28,8 +30,8 @@ class Signin extends Component {
     this.setState({data});
   };
 
-  handleSubmit = () => {
-    console.log('submit');
+  handleSubmit = (values) => {
+    this.setState({data: values});
     this.setState({loading: true});
     this.signinEmail();
   };
@@ -74,24 +76,47 @@ class Signin extends Component {
               <Text style={styles.txtColor}>Join A Meeting</Text>
             </Button>
           </Block>
-          <Block style={styles.btnContainer}>
-            <ScrollView>
-              <Text>Email</Text>
-              <Input
-                placeholder="Email"
-                onChangeText={(e) => this.handleChange(e, 'email')}
-              />
-              <Text>Password</Text>
-              <Input
-                placeholder="Password"
-                password
-                onChangeText={(e) => this.handleChange(e, 'password')}
-              />
-              <TouchableOpacity onPress={this.handleSubmit}>
-                <Text style={styles.signTxt}>Sign Up</Text>
-              </TouchableOpacity>
-            </ScrollView>
-          </Block>
+          <Formik
+            validationSchema={LoginValidation}
+            initialValues={{email: '', password: ''}}
+            onSubmit={(values) => this.handleSubmit(values)}>
+            {({handleChange, handleBlur, handleSubmit, values, errors}) => (
+              <Block style={styles.btnContainer}>
+                <ScrollView>
+                  <Text>Email</Text>
+                  <Input
+                    placeholder="Email"
+                    onChangeText={handleChange('email')}
+                    onBlur={handleBlur('email')}
+                    value={values.email}
+                    keyboardType="email-address"
+                  />
+                  {errors.email && (
+                    <Text style={{fontSize: 10, color: 'red'}}>
+                      {errors.email}
+                    </Text>
+                  )}
+                  <Text>Password</Text>
+                  <Input
+                    placeholder="Password"
+                    password
+                    onChangeText={handleChange('password')}
+                    onBlur={handleBlur('password')}
+                    value={values.password}
+                    secureTextEntry
+                  />
+                  {errors.password && (
+                    <Text style={{fontSize: 10, color: 'red'}}>
+                      {errors.password}
+                    </Text>
+                  )}
+                  <TouchableOpacity onPress={handleSubmit}>
+                    <Text style={styles.signTxt}>Sign Up</Text>
+                  </TouchableOpacity>
+                </ScrollView>
+              </Block>
+            )}
+          </Formik>
         </SafeAreaView>
       </Block>
     );
