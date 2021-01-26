@@ -38,8 +38,8 @@ class Signin extends Component {
     const {data} = this.state;
     try {
       let api = await auth().signInWithEmailAndPassword(
-        data.email,
-        data.password,
+        data.email.trim(),
+        data.password.trim(),
       );
     } catch (error) {
       console.log(error);
@@ -52,10 +52,10 @@ class Signin extends Component {
       }
       if (error.code === 'auth/wrong-password') {
         alert('Wrong Password');
-      } else {
-        alert('Create Account using this Email');
       }
-      console.log(error.code);
+      if (error.code === 'auth/user-not-found') {
+        alert('Account Not Found');
+      }
     }
     // console.log(api);
     this.setState({loading: false});

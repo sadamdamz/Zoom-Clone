@@ -14,6 +14,7 @@ class ArButton extends React.Component {
       fontSize,
       round,
       loading,
+      disabled,
       ...props
     } = this.props;
 
@@ -23,6 +24,8 @@ class ArButton extends React.Component {
         shadowless
         textStyle={{fontSize: fontSize || 12, fontWeight: '700'}}
         loading={loading}
+        color={color}
+        disabled={disabled}
         {...props}>
         {children}
       </Button>

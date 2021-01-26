@@ -9,7 +9,8 @@ import {
 import {Block} from 'galio-framework';
 import {Input, Button} from '../components';
 import {Images, Theme} from '../constants';
-import {Google, Facebook, CreateEmailAuth} from '../auth';
+import {Google, Facebook} from '../auth';
+import auth from '@react-native-firebase/auth';
 
 class Signup extends Component {
   constructor(props) {
@@ -18,32 +19,45 @@ class Signup extends Component {
       loading: false,
       data: {},
       errors: {},
+      disabled: true,
     };
   }
   handleChange = (value, name) => {
     let data = this.state.data;
     data[name] = value;
-    console.log(value, name);
     this.setState({data});
   };
 
   handleSubmit = () => {
-    console.log('submit');
     this.setState({loading: true});
     this.createEmail();
   };
 
   createEmail = async () => {
-    console.log(data);
     const {data} = this.state;
-    let api = await CreateEmailAuth(data.email, data.password);
-    console.log(api);
+    try {
+      let api = await auth().createUserWithEmailAndPassword(
+        data.email.trim(),
+        data.password.trim(),
+      );
+    } catch (error) {
+      console.log(error.code);
+      if (error.code === 'auth/invalid-email') {
+        alert('Enter Valid Email Adress');
+      }
+      if (error.code === 'auth/weak-password') {
+        alert('Week Password atleast 6 Characters Needed');
+      }
+      if (error.code === 'auth/email-already-in-use') {
+        alert('Email Adress Already in Use');
+      }
+    }
     this.setState({loading: false});
   };
 
   render() {
     const {navigation} = this.props;
-    const {loading} = this.state;
+    const {loading, disabled} = this.state;
     return (
       <ScrollView style={styles.scroll}>
         <Block safe flex style={styles.container}>
@@ -82,7 +96,8 @@ class Signup extends Component {
             <Button
               style={styles.submitBtn}
               loading={loading}
-              onPress={this.handleSubmit}>
+              onPress={this.handleSubmit}
+              color={Theme.COLORS.BLUE}>
               <Text style={styles.btnTxt}>Create Account</Text>
             </Button>
           </Block>
@@ -145,7 +160,6 @@ const styles = StyleSheet.create({
     width: '80%',
     marginLeft: 'auto',
     marginRight: 'auto',
-    backgroundColor: Theme.COLORS.BLUE,
     borderRadius: Theme.SIZES.BTNRADIUS,
   },
   btnTxt: {
