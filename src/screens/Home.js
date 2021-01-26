@@ -56,38 +56,6 @@ class Home extends Component {
                 </Button>
               </Block>
             </Block>
-            <Block row space="around" style={styles.loginUsing}>
-              <Block>
-                <Image source={Images.Mail} style={styles.imgIcon} />
-              </Block>
-              <Block>
-                <TouchableOpacity
-                  onPress={() =>
-                    Facebook().then(() =>
-                      console.log('Signed in with FaceBook!'),
-                    )
-                  }>
-                  <Image source={Images.Facebook} style={styles.imgIcon} />
-                </TouchableOpacity>
-              </Block>
-              <Block>
-                <TouchableOpacity
-                  onPress={() =>
-                    Google().then(() => console.log('Signed in with Google!'))
-                  }>
-                  <Image source={Images.Google} style={styles.imgIcon} />
-                </TouchableOpacity>
-              </Block>
-              <Block>
-                <TouchableOpacity
-                  onPress={() => navigation.navigate('Phone Verification')}>
-                  <Image source={Images.Whatsapp} style={styles.imgIcon} />
-                </TouchableOpacity>
-              </Block>
-            </Block>
-            <Block>
-              <Text style={styles.signTxt}>Sign Up Using</Text>
-            </Block>
           </View>
         </SafeAreaView>
       </View>
@@ -111,7 +79,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   container: {
-    flex: 2,
+    flex: 3,
     backgroundColor: Theme.COLORS.BLUE,
     width: '100%',
     height: '100%',

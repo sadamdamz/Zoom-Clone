@@ -17,16 +17,9 @@ class JoinMeeting extends Component {
     return (
       <Block safe flex style={styles.container}>
         <Block style={styles.children}>
-          <Text>Email</Text>
+          <Text>Meeting ID</Text>
           <Input
-            placeholder="Email"
-            onChangeText={(e) => this.handleChange(e, 'email')}
-          />
-        </Block>
-        <Block style={styles.children}>
-          <Text>Meeting Key</Text>
-          <Input
-            placeholder="Meeting Key"
+            placeholder="Meeting ID"
             onChangeText={(e) => this.handleChange(e, 'key')}
           />
         </Block>

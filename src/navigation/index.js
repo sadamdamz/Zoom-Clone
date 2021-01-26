@@ -6,13 +6,10 @@ import {View, Text} from 'react-native';
 import auth from '@react-native-firebase/auth';
 
 const index = () => {
-  // Set an initializing state whilst Firebase connects
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
 
-  // Handle user state changes
   function onAuthStateChanged(user) {
-    console.log(user);
     setUser(user);
     if (initializing) {
       setInitializing(false);
@@ -21,7 +18,7 @@ const index = () => {
 
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-    return subscriber; // unsubscribe on unmount
+    return subscriber;
   }, []);
 
   if (initializing) {
@@ -29,14 +26,15 @@ const index = () => {
   }
 
   // if (!user) {
-  return <Screens />;
+  //   return <Screens />;
   // }
 
-  // return (
-  //   <View>
-  //     <Text>Welcome {user.email}</Text>
-  //   </View>
-  // );
+  return (
+    <Screens user={user} />
+    // <View>
+    //   <Text>Welcome {user.email}</Text>
+    // </View>
+  );
 };
 
 export default index;

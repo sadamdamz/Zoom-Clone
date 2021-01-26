@@ -1,8 +1,15 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, ScrollView, TouchableOpacity} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
 import {Block} from 'galio-framework';
 import {Input, Button} from '../components';
-import {Theme} from '../constants';
+import {Images, Theme} from '../constants';
+import {Google, Facebook} from '../auth';
 
 class Signup extends Component {
   constructor(props) {
@@ -61,8 +68,32 @@ class Signup extends Component {
               <Text style={styles.btnTxt}>Create Account</Text>
             </Button>
           </Block>
+          <Block row space="around" style={styles.loginUsing}>
+            <Block>
+              <TouchableOpacity
+                onPress={() =>
+                  Facebook().then(() => console.log('Signed in with FaceBook!'))
+                }>
+                <Image source={Images.Facebook} style={styles.imgIcon} />
+              </TouchableOpacity>
+            </Block>
+            <Block>
+              <TouchableOpacity
+                onPress={() =>
+                  Google().then(() => console.log('Signed in with Google!'))
+                }>
+                <Image source={Images.Google} style={styles.imgIcon} />
+              </TouchableOpacity>
+            </Block>
+            <Block>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Phone Verification')}>
+                <Image source={Images.Whatsapp} style={styles.imgIcon} />
+              </TouchableOpacity>
+            </Block>
+          </Block>
           <Block style={styles.account}>
-            <Text>Already have an Account?</Text>
+            <Text>Already have an Account? </Text>
             <TouchableOpacity onPress={() => navigation.navigate('Signin')}>
               <Text style={styles.signIn}>Sign In</Text>
             </TouchableOpacity>
@@ -77,7 +108,8 @@ export default Signup;
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
+    padding: 15,
+    paddingTop: 10,
     alignItems: 'center',
   },
   scroll: {
@@ -103,11 +135,17 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   account: {
-    paddingTop: 20,
+    paddingTop: 10,
+    flexDirection: 'row',
   },
   signIn: {
     color: Theme.COLORS.BLUE,
     fontWeight: '700',
     textAlign: 'center',
+  },
+  imgIcon: {
+    height: 50,
+    width: 50,
+    margin: 25,
   },
 });
