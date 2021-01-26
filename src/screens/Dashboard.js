@@ -10,7 +10,7 @@ class Dashboard extends Component {
     const {user} = this.props;
     return (
       <View>
-        <Text>Hii Welcome! {user.displayName}</Text>
+        <Text>Hii Welcome! {user.email}</Text>
       </View>
     );
   }

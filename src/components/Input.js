@@ -1,21 +1,20 @@
-import React from "react";
-import { StyleSheet } from "react-native";
+import React from 'react';
+import {StyleSheet} from 'react-native';
 import PropTypes from 'prop-types';
 
-import { Input } from "galio-framework";
+import {Input} from 'galio-framework';
 
 import Icon from './Icon';
-import { Theme } from "../constants";
+import {Theme} from '../constants';
 
 class ArInput extends React.Component {
-
   handleText = (e) => {
-    console.log(e)
-    this.props.onChangeText(e)
-  }
+    console.log(e);
+    this.props.onChangeText(e);
+  };
 
   render() {
-    const { shadowless, success, error, primary,name,iconName } = this.props;
+    const {shadowless, success, error, primary, name, iconName} = this.props;
 
     const inputStyles = [
       styles.input,
@@ -23,7 +22,7 @@ class ArInput extends React.Component {
       success && styles.success,
       error && styles.error,
       primary && styles.primary,
-      {...this.props.style}
+      {...this.props.style},
     ];
 
     return (
@@ -31,7 +30,7 @@ class ArInput extends React.Component {
         placeholderTextColor={Theme.COLORS.MUTED}
         style={inputStyles}
         color={Theme.COLORS.HEADER}
-        onChangeText={(e)=>this.handleText(e)}
+        onChangeText={(e) => this.handleText(e)}
         iconContent={
           <Icon
             size={14}
@@ -52,7 +51,7 @@ ArInput.defaultProps = {
   success: false,
   error: false,
   primary: false,
-  name: ""
+  name: '',
 };
 
 ArInput.propTypes = {
@@ -60,31 +59,31 @@ ArInput.propTypes = {
   success: PropTypes.bool,
   error: PropTypes.bool,
   primary: PropTypes.bool,
-}
+};
 
 const styles = StyleSheet.create({
   input: {
     borderRadius: 10,
     borderColor: Theme.COLORS.BORDER,
     height: 44,
-    backgroundColor: '#FFFFFF'
+    backgroundColor: '#FFFFFF',
   },
   success: {
-    borderColor: Theme.COLORS.INPUT_SUCCESS
+    borderColor: Theme.COLORS.INPUT_SUCCESS,
   },
   error: {
-    borderColor: Theme.COLORS.INPUT_ERROR
+    borderColor: Theme.COLORS.INPUT_ERROR,
   },
   primary: {
-    borderColor: Theme.COLORS.PRIMARY
+    borderColor: Theme.COLORS.PRIMARY,
   },
   shadow: {
     shadowColor: Theme.COLORS.BLACK,
-    shadowOffset: { width: 0, height: 0.5 },
+    shadowOffset: {width: 0, height: 0.5},
     shadowRadius: 1,
     shadowOpacity: 0.13,
     elevation: 2,
-  }
+  },
 });
 
 export default ArInput;

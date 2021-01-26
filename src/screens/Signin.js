@@ -1,17 +1,64 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, SafeAreaView, ScrollView} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  SafeAreaView,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
 import {Button} from '../components/index';
 import {Block} from 'galio-framework';
 import {Theme} from '../constants';
 import {Input} from '../components';
+import auth from '@react-native-firebase/auth';
 
 class Signin extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      data: {},
+      errors: {},
+    };
   }
 
   handleChange = (value, name) => {
-    console.log(value, name);
+    console.log(name, value);
+    let data = this.state;
+    data[name] = value;
+    this.setState({data});
+  };
+
+  handleSubmit = () => {
+    console.log('submit');
+    this.setState({loading: true});
+    this.signinEmail();
+  };
+
+  signinEmail = async () => {
+    const {data} = this.state;
+    try {
+      let api = await auth().signInWithEmailAndPassword(
+        data.email,
+        data.password,
+      );
+    } catch (error) {
+      console.log(error);
+      if (error.code === 'auth/email-already-in-use') {
+        alert('Incorrect Password');
+      }
+
+      if (error.code === 'auth/invalid-email') {
+        alert('Email Address is Invalid');
+      }
+      if (error.code === 'auth/wrong-password') {
+        alert('Wrong Password');
+      } else {
+        alert('Create Account using this Email');
+      }
+      console.log(error.code);
+    }
+    // console.log(api);
+    this.setState({loading: false});
   };
 
   render() {
@@ -32,14 +79,17 @@ class Signin extends Component {
               <Text>Email</Text>
               <Input
                 placeholder="Email"
-                onChangeText={(e) => this.handleChange(e, 'name')}
+                onChangeText={(e) => this.handleChange(e, 'email')}
               />
               <Text>Password</Text>
               <Input
                 placeholder="Password"
+                password
                 onChangeText={(e) => this.handleChange(e, 'password')}
               />
-              <Text style={styles.signTxt}>Sign Up</Text>
+              <TouchableOpacity onPress={this.handleSubmit}>
+                <Text style={styles.signTxt}>Sign Up</Text>
+              </TouchableOpacity>
             </ScrollView>
           </Block>
         </SafeAreaView>

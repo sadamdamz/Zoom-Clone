@@ -9,18 +9,41 @@ import {
 import {Block} from 'galio-framework';
 import {Input, Button} from '../components';
 import {Images, Theme} from '../constants';
-import {Google, Facebook} from '../auth';
+import {Google, Facebook, CreateEmailAuth} from '../auth';
 
 class Signup extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      loading: false,
+      data: {},
+      errors: {},
+    };
   }
   handleChange = (value, name) => {
+    let data = this.state.data;
+    data[name] = value;
     console.log(value, name);
+    this.setState({data});
+  };
+
+  handleSubmit = () => {
+    console.log('submit');
+    this.setState({loading: true});
+    this.createEmail();
+  };
+
+  createEmail = async () => {
+    console.log(data);
+    const {data} = this.state;
+    let api = await CreateEmailAuth(data.email, data.password);
+    console.log(api);
+    this.setState({loading: false});
   };
 
   render() {
     const {navigation} = this.props;
+    const {loading} = this.state;
     return (
       <ScrollView style={styles.scroll}>
         <Block safe flex style={styles.container}>
@@ -42,6 +65,7 @@ class Signup extends Component {
             <Text>Phone Number</Text>
             <Input
               placeholder="Phone"
+              type="number-pad"
               onChangeText={(e) => this.handleChange(e, 'phone')}
             />
           </Block>
@@ -51,11 +75,14 @@ class Signup extends Component {
               placeholder="Password"
               password
               viewPass
-              onChangeText={(e) => this.handleChange(e, 'name')}
+              onChangeText={(e) => this.handleChange(e, 'password')}
             />
           </Block>
           <Block style={styles.btnChildren}>
-            <Button style={styles.submitBtn}>
+            <Button
+              style={styles.submitBtn}
+              loading={loading}
+              onPress={this.handleSubmit}>
               <Text style={styles.btnTxt}>Create Account</Text>
             </Button>
           </Block>
