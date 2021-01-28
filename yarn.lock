@@ -3909,6 +3909,11 @@ inherits@2, inherits@2.0.4, inherits@^2.0.1, inherits@^2.0.3, inherits@~2.0.3:
   resolved "https://registry.yarnpkg.com/inherits/-/inherits-2.0.4.tgz#0fa2c64f932917c3433a0ded55363aae37416b7c"
   integrity sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==
 
+initials@^3.0.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/initials/-/initials-3.1.1.tgz#a63395b2c46bc56207b4b964a6eb185dbd8458e6"
+  integrity sha512-imRkwIpCUer+w9NB41dTENhJrTQTGOJthRa3URF0O9+L7MOMBPmN8njwkiX4u8YnzxbjEp4Is0ohiW6NSA8ZCw==
+
 inquirer@^3.0.6:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/inquirer/-/inquirer-3.3.0.tgz#9dd2f2ad765dcab1ff0443b491442a20ba227dc9"
@@ -6467,6 +6472,19 @@ react-native-screens@^2.16.1:
   version "2.16.1"
   resolved "https://registry.yarnpkg.com/react-native-screens/-/react-native-screens-2.16.1.tgz#b105a127378d90018a46daf0c2f6518fca60c06f"
   integrity sha512-WZ7m0sBDVaHbBnlHxwQnUlI6KNfQKHq+Unfw+VBuAlnSXvT+aw6Bb/K2bUlHzBgvrPjwY3Spc7ZERFuTwRLLwg==
+
+react-native-tab-view@^2.15.2:
+  version "2.15.2"
+  resolved "https://registry.yarnpkg.com/react-native-tab-view/-/react-native-tab-view-2.15.2.tgz#4bc7832d33a119306614efee667509672a7ee64e"
+  integrity sha512-2hxLkBnZtEKFDyfvNO5EUywhy3f/EiLOBO8SWqKj4BMBTO0QwnybaPE5MVF00Fhz+VA4+h/iI40Dkrrtq70dGg==
+
+react-native-user-avatar@^1.0.7:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/react-native-user-avatar/-/react-native-user-avatar-1.0.7.tgz#be7a3912e3babad8780c8b83cff9a7e14d15cff7"
+  integrity sha512-ROWoH0yqHbs6yc5hruEI5n0yjpnw5fNAiEwTiVHbqOSPsgKU4Zwy+Ftr/8EaFzIrVRqxY7QXXZY/EWUll1YY+Q==
+  dependencies:
+    initials "^3.0.1"
+    prop-types "^15.7.2"
 
 react-native-vector-icons@^7.1.0:
   version "7.1.0"

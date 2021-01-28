@@ -18,10 +18,10 @@ class Main extends Component {
         <MainStack.Screen name="Dashboard" options={{headerShown: false}}>
           {(props) => <Dashboard {...props} user={user} />}
         </MainStack.Screen>
-        <MainStack.Screen name="MeetingList">
+        <MainStack.Screen name="MeetingList" options={{headerShown: false}}>
           {(props) => <MeetingList {...props} user={user} />}
         </MainStack.Screen>
-        <MainStack.Screen name="Invite">
+        <MainStack.Screen name="Invite" options={{title:''}}>
           {(props) => <Invite {...props} user={user} />}
         </MainStack.Screen>
       </MainStack.Navigator>
