@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import Dashboard from '../screens/Dashboard';
 import MeetingList from '../screens/MeetingList';
 import Invite from '../screens/Invite';
 import {createStackNavigator} from '@react-navigation/stack';
