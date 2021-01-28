@@ -130,14 +130,15 @@ const MeetingList = (props) => {
         <Block>
           <Button
             style={styles.signinBtn}
-            onPress={() => navigation.navigate('Signup')}>
+            onPress={() => navigation.navigate('JoinMeeting')}
+            >
             <Text style={styles.signinTxt}>Join a Meeting</Text>
           </Button>
         </Block>
         <Block>
           <Button
             style={styles.signupBtn}
-            onPress={() => navigation.navigate('Signup')}>
+            onPress={() => navigation.navigate('Invite')}>
             <Text style={styles.signupTxt}>Meet Now</Text>
           </Button>
         </Block>
