@@ -15,9 +15,6 @@ class Main extends Component {
     const {user} = this.props;
     return (
       <MainStack.Navigator>
-        <MainStack.Screen name="Dashboard" options={{headerShown: false}}>
-          {(props) => <Dashboard {...props} user={user} />}
-        </MainStack.Screen>
         <MainStack.Screen name="MeetingList" options={{headerShown: false}}>
           {(props) => <MeetingList {...props} user={user} />}
         </MainStack.Screen>
