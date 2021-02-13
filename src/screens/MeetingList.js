@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Text, StyleSheet, ScrollView, Image, Dimensions} from 'react-native';
 import {Block} from 'galio-framework';
 import {Theme, Images} from '../constants/index';
@@ -54,9 +54,30 @@ const PastList = () => {
   );
 };
 
+const initialImgState = (props) => {
+  let img = props.user._user.photoURL?props.user._user.photoURL:'';
+  return img;
+}
+
+const initialNameState = (props) => {
+  let name;
+  const { user } = props;
+  if(user._user.phoneNumber==null && user._user.displayName==null){
+    name=user._user.email;
+  }else if(user._user.phoneNumber==null){
+    name=user.displayName
+  }else{
+    name = user._user.phoneNumber
+  }
+  return name;
+}
+
 const MeetingList = (props) => {
   const [index, setIndex] = useState(0);
-  const [routes] = useState([
+  const [img, setImg] = useState(()=>initialImgState(props));
+  console.log(props.user._user);
+  const [usrName, setUsrName] = useState(()=>initialNameState(props));
+   const [routes] = useState([
     {key: 'upcoming', title: 'UpcomingList'},
     {key: 'past', title: 'PastList'},
   ]);
@@ -90,14 +111,14 @@ const MeetingList = (props) => {
           <Block left={true} style={styles.child1}>
             <UserAvatar
               isPicture={true}
-              src={user.photoURL}
+              src={img}
               shape="rounded"
-              name={user.displayName}
+              name={usrName}
             />
           </Block>
           <Block left={true} style={styles.child2}>
             <Text style={styles.welcome}>Welcome</Text>
-            <Text style={styles.userName}>{user.displayName}</Text>
+            <Text style={styles.userName}>{usrName}</Text>
           </Block>
           <Block right={true} style={styles.child3}>
             <OptionsMenu
@@ -109,7 +130,7 @@ const MeetingList = (props) => {
                 resizeMode: 'contain',
               }}
               destructiveIndex={1}
-              options={['Logout', 'Cancel']}
+              options={['Logout']}
               actions={[signOut]}
             />
             {/* <Text>hello</Text> */}

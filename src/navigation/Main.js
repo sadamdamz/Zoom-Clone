@@ -14,6 +14,7 @@ class Main extends Component {
   }
   render() {
     const {user} = this.props;
+    console.log(user);
     return (
       <MainStack.Navigator>
         <MainStack.Screen name="MeetingList" options={{headerShown: false}}>
