@@ -12,6 +12,8 @@ import {Block} from 'galio-framework';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {Button} from '../components/index';
 import {mediaDevices, RTCView} from 'react-native-webrtc';
+import {connect} from 'react-redux';
+import {joinRoom} from '../store/action/videoAction';
 import FontAwesome from 'react-native-vector-icons/dist/FontAwesome';
 import FontAwesome5 from 'react-native-vector-icons/dist/FontAwesome5';
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
@@ -24,8 +26,8 @@ class MeetingRoom extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      mute:true,
-      video:true,
+      mute: true,
+      video: true,
     };
   }
 
@@ -57,6 +59,7 @@ class MeetingRoom extends Component {
         })
         .then((stream) => {
           this.setData(stream);
+          this.props.joinRoom(stream);
         })
         .catch((error) => {
           console.log(error);
@@ -74,81 +77,102 @@ class MeetingRoom extends Component {
 
   muteAudio = () => {
     const {mute} = this.state;
-    this.setState({mute:!mute});
-  }
+    this.setState({mute: !mute});
+  };
 
   muteCamera = () => {
     const {video} = this.state;
-    this.setState({video:!video});
-  }
+    this.setState({video: !video});
+  };
 
   render() {
-    const {navigation} = this.props;
     const {
-      mute,
-      video
-    } = this.state;
+      navigation,
+      video: {myStream, streams},
+    } = this.props;
+    const {mute, video} = this.state;
     return (
       <Block style={styles.parent}>
         <Block style={styles.child1}>
-          <Button
-            style={styles.endBtn}
-            onPress={() => navigation.goBack()}>
+          <Button style={styles.endBtn} onPress={() => navigation.goBack()}>
             <Text style={styles.endText}>End</Text>
           </Button>
         </Block>
         <Block style={styles.child2}>
-          {this.state.stream ? (
+          {myStream ? (
             <>
-              <RTCView
-                streamURL={this.state.stream.toURL()}
-                style={styles.mainRtc}
-              />
+              <RTCView streamURL={myStream.toURL()} style={styles.mainRtc} />
             </>
           ) : null}
         </Block>
         <Block style={styles.child3}>
           <ScrollView horizontal={true}>
-            <>
-              {[0,1,2,3].map((item, index) => {
-                return (
-                  <Block style={styles.scrollChilds} key={index}>
-                    {this.state.stream ? (
-                      <>
-                        <RTCView
-                          streamURL={this.state.stream.toURL()}
-                          style={styles.childRtc}
-                        />
-                      </>
-                    ) : null}
-                  </Block>
-                );
-              })}
-            </>
+            {streams.length > 0 ? (
+              <>
+                {streams.map((item, index) => {
+                  return (
+                    <Block style={styles.scrollChilds} key={index}>
+                      {this.state.stream ? (
+                        <>
+                          <RTCView
+                            streamURL={this.state.stream.toURL()}
+                            style={styles.childRtc}
+                          />
+                        </>
+                      ) : null}
+                    </Block>
+                  );
+                })}
+              </>
+            ) : null}
           </ScrollView>
         </Block>
         <Block style={styles.child4}>
           <Block>
-          <FontAwesome name={mute?'microphone':'microphone-slash'} size={23} color={mute?'white':'red'} style={styles.iconStyle} onPress={this.muteAudio}/>
-          <Text style={styles.iconTxt}>{mute?'Mute':'UnMute'}</Text>
+            <FontAwesome
+              name={mute ? 'microphone' : 'microphone-slash'}
+              size={23}
+              color={mute ? 'white' : 'red'}
+              style={styles.iconStyle}
+              onPress={this.muteAudio}
+            />
+            <Text style={styles.iconTxt}>{mute ? 'Mute' : 'UnMute'}</Text>
           </Block>
           <Block>
-          <FontAwesome5 name={video?'video':'video-slash'} size={23} color={video?'white':'red'} style={styles.iconStyle} onPress={this.muteCamera}/>
-          <Text style={styles.iconTxt}>{video?'Camera':'Turn On'}</Text>
+            <FontAwesome5
+              name={video ? 'video' : 'video-slash'}
+              size={23}
+              color={video ? 'white' : 'red'}
+              style={styles.iconStyle}
+              onPress={this.muteCamera}
+            />
+            <Text style={styles.iconTxt}>{video ? 'Camera' : 'Turn On'}</Text>
           </Block>
           <Block>
-          <Ionicons name="people" size={23} color="white" style={styles.iconStyle} />
-          <Text style={styles.iconTxt}>Participants</Text>
+            <Ionicons
+              name="people"
+              size={23}
+              color="white"
+              style={styles.iconStyle}
+            />
+            <Text style={styles.iconTxt}>Participants</Text>
           </Block>
           <Block>
-          <Feather name="more-horizontal" size={23} color="white" style={styles.iconStyle} />
-          <Text style={styles.iconTxt}>More</Text>
+            <Feather
+              name="more-horizontal"
+              size={23}
+              color="white"
+              style={styles.iconStyle}
+            />
+            <Text style={styles.iconTxt}>More</Text>
           </Block>
         </Block>
       </Block>
     );
   }
 }
+
+const mapStateToProps = ({video}) => ({video});
 
 const styles = StyleSheet.create({
   parent: {
@@ -157,38 +181,38 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
   },
   child1: {
-    flex:1,
+    flex: 1,
     alignItems: 'flex-end',
   },
   child2: {
-    flex:5,
-    justifyContent:'center'
+    flex: 5,
+    justifyContent: 'center',
   },
   child3: {
-    flex:2,
-    alignItems:'center',
+    flex: 2,
+    alignItems: 'center',
   },
   child4: {
-    flex:1,
+    flex: 1,
     justifyContent: 'space-around',
     flexDirection: 'row',
     alignItems: 'center',
-    width:'100%',
+    width: '100%',
     paddingLeft: 10,
     paddingRight: 10,
   },
   iconStyle: {
-    textAlign: 'center'
+    textAlign: 'center',
   },
   iconTxt: {
-    color:'white',
-    textAlign:'center',
+    color: 'white',
+    textAlign: 'center',
     fontSize: 10,
   },
   endBtn: {
     backgroundColor: 'red',
     width: 70,
-    height: 25
+    height: 25,
   },
   endText: {
     color: Theme.COLORS.WHITE,
@@ -200,11 +224,11 @@ const styles = StyleSheet.create({
     width: 200,
     borderColor: 'white',
     borderWidth: 1,
-    flex:1,
-    alignItems:'center'
+    flex: 1,
+    alignItems: 'center',
   },
   mainRtc: {
-    width: "100%",
+    width: '100%',
     height: 400,
   },
   childRtc: {
@@ -213,4 +237,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MeetingRoom;
+export default connect(mapStateToProps, {joinRoom})(MeetingRoom);

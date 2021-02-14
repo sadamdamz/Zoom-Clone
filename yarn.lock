@@ -6465,6 +6465,11 @@ react-native-paper@^4.7.1:
     color "^3.1.2"
     react-native-iphone-x-helper "^1.3.1"
 
+react-native-peerjs@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/react-native-peerjs/-/react-native-peerjs-1.0.4.tgz#94df5bf13b1ab6373bc123fc6d1109840f67fd78"
+  integrity sha512-Z3pPtV6B0tiW8TiRXBtyUwWBAi+sYz2/bMaae07zkBogEnF2PzwFlK9+eZZbJHSVeRohtDE9RnED5Q6QI07TFg==
+
 react-native-phone-number-input@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/react-native-phone-number-input/-/react-native-phone-number-input-2.0.0.tgz#4ba10fc75e6fd52d2b86f3f82701bd7db6d2a071"
