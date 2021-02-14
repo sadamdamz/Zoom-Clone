@@ -1,8 +1,8 @@
 const initialState = {};
 
 export default (state=initialState, {type, payload}) => {
-  switch (key) {
+  switch (type) {
     default:
-      state;
+     return state;
   }
 }

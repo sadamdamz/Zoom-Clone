@@ -8,6 +8,9 @@
 
 import React, {Component} from 'react';
 import Navigation from './src/navigation';
+import {Provider} from 'react-redux';
+import {Provider as PaperProvider} from 'react-native-paper';
+import store from './src/store';
 
 class App extends Component {
   constructor(props) {
@@ -16,7 +19,13 @@ class App extends Component {
   }
 
   render() {
-    return <Navigation />;
+    return (
+      <Provider {...{store}}>
+        <PaperProvider>
+        <Navigation />
+        </PaperProvider>
+      </Provider>
+    );
   }
 }
 

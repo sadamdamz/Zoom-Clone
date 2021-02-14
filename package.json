@@ -26,6 +26,7 @@
     "react-native-gesture-handler": "^1.9.0",
     "react-native-options-menu": "^2.0.2",
     "react-native-otp-textinput": "^0.0.7",
+    "react-native-paper": "^4.7.1",
     "react-native-phone-number-input": "^2.0.0",
     "react-native-reanimated": "^1.13.2",
     "react-native-rename": "^2.7.0",
