@@ -57,7 +57,6 @@ class MeetingRoom extends Component {
         })
         .then((stream) => {
           this.setData(stream);
-          // console.log(stream);
         })
         .catch((error) => {
           console.log(error);
@@ -76,13 +75,11 @@ class MeetingRoom extends Component {
   muteAudio = () => {
     const {mute} = this.state;
     this.setState({mute:!mute});
-    console.log('touched')
   }
 
   muteCamera = () => {
     const {video} = this.state;
     this.setState({video:!video});
-    console.log('camera');
   }
 
   render() {
@@ -91,9 +88,7 @@ class MeetingRoom extends Component {
       mute,
       video
     } = this.state;
-    console.log(this.state)
     return (
-      // <ScrollView style={styles.parent}>
       <Block style={styles.parent}>
         <Block style={styles.child1}>
           <Button
