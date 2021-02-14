@@ -130,11 +130,11 @@ class MeetingRoom extends Component {
         <Block style={styles.child4}>
           <Block>
           <FontAwesome name={mute?'microphone':'microphone-slash'} size={23} color={mute?'white':'red'} style={styles.iconStyle} onPress={this.muteAudio}/>
-          <Text style={styles.iconTxt}>Mute</Text>
+          <Text style={styles.iconTxt}>{mute?'Mute':'UnMute'}</Text>
           </Block>
           <Block>
           <FontAwesome5 name={video?'video':'video-slash'} size={23} color={video?'white':'red'} style={styles.iconStyle} onPress={this.muteCamera}/>
-          <Text style={styles.iconTxt}>Camera</Text>
+          <Text style={styles.iconTxt}>{video?'Camera':'Turn On'}</Text>
           </Block>
           <Block>
           <Ionicons name="people" size={23} color="white" style={styles.iconStyle} />
