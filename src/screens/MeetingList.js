@@ -24,6 +24,7 @@ const UpcomingList = () => {
               date={'11/7/2021'}
               time={'2:30 pm'}
               members={25}
+              key={index}
             />
           );
         })}
@@ -46,6 +47,7 @@ const PastList = () => {
               date={'11/7/2021'}
               time={'2:30 pm'}
               members={25}
+              key={index}
             />
           );
         })}
@@ -75,7 +77,6 @@ const initialNameState = (props) => {
 const MeetingList = (props) => {
   const [index, setIndex] = useState(0);
   const [img, setImg] = useState(()=>initialImgState(props));
-  console.log(props.user._user);
   const [usrName, setUsrName] = useState(()=>initialNameState(props));
    const [routes] = useState([
     {key: 'upcoming', title: 'UpcomingList'},
@@ -85,7 +86,6 @@ const MeetingList = (props) => {
   const {user, navigation} = props;
 
   const signOut = async () => {
-    console.log('signout');
     await auth()
       .signOut()
       .then(() => console.log('User signed out!'));

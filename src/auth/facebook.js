@@ -24,8 +24,11 @@ async function onFacebookButtonPress() {
     data.accessToken,
   );
 
+  const sign = await auth().signInWithCredential(facebookCredential);
+
+  console.log(result, data, facebookCredential, sign)
   // Sign-in the user with the credential
-  return auth().signInWithCredential(facebookCredential);
+  return sign;
 }
 
 export default onFacebookButtonPress;

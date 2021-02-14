@@ -16,7 +16,7 @@ class Main extends Component {
     const {user} = this.props;
     console.log(user);
     return (
-      <MainStack.Navigator>
+      <MainStack.Navigator> 
         <MainStack.Screen name="MeetingList" options={{headerShown: false}}>
           {(props) => <MeetingList {...props} user={user} />}
         </MainStack.Screen>
@@ -26,7 +26,7 @@ class Main extends Component {
         <MainStack.Screen name="JoinMeeting">
           {(props) => <JoinMeeting {...props} user={user} />}
         </MainStack.Screen>
-        <MainStack.Screen name="MeetingRoom" options={{title:''}}>
+        <MainStack.Screen name="MeetingRoom" options={{headerShown: false}}>
           {(props) => <MeetingRoom {...props} user={user} />}
         </MainStack.Screen>
       </MainStack.Navigator>
