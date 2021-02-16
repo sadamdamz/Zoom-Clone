@@ -29,10 +29,12 @@ app.use('/mypeer', peerServer);
 
 io.on('connection', function(socket){
   console.log('socket connected')
-  socket.on('join-room', ({roomId,userID})=>{
-    console.log('newuser',roomId,userID);
+  socket.on('join-room', ({roomId,peerID})=>{
+    console.log('newuser',roomId,peerID);
     socket.join(roomId);
-    socket.to(roomId).broadcast.emit('user-connected', userID);
+    socket.to(roomId).broadcast.emit('user-connected', (peerID)=>{
+      console.log(peerID)
+    });
   })
 })
 

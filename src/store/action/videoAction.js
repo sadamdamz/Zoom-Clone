@@ -4,6 +4,15 @@ import Peer from 'react-native-peerjs'
 
 export const API_URL = `http://192.168.43.20:5000`;
 
+const peer = () => {
+  return new Peer(undefined, {
+    host: '192.168.43.20',
+    secure: false,
+    port: 5000,
+    path: '/mypeer'
+  })
+}
+
 //socket config
 export const socket = IO(`${API_URL}`,{
   forceNew: true,
@@ -13,47 +22,50 @@ socket.on('connection',()=>{
   console.log('client connected');
 })
 
-//peer config
-const peerServer = new Peer(undefined, {
-  host: '192.168.43.20',
-  secure: false,
-  port: 5000,
-  path: '/mypeer'
-})
+
 
 export const joinRoom = (stream) => async(dispatch) => {
-  // console.log(stream);
+  const peerServer = peer();
+
   const roomId = '123456';
-  
+
   dispatch({type:MY_STREAM, payload:stream});
 
   //connection to server
-  peerServer.on('open',(userID)=>{
-    console.log(userID);
-    socket.emit('join-room', {userID, roomId})
+  peerServer.on('open',(peerID)=>{
+    socket.emit('join-room', {peerID, roomId})
   })
 
-  socket.on('user-connected', (userID)=>{
-    connectToNewUser(userID, stream, dispatch)
+  socket.on('user-connected', (peerID)=>{
+    console.log('user-connected');
+    const call = peerServer.call(peerID, stream);
+    call.on('stream', (remoteVideoStream) => {
+      console.log('remotestream', remoteVideoStream)
+      if(remoteVideoStream){
+        dispatch({type:ADD_REMOTE_STREAM, payload:remoteVideoStream})
+      }
+    })
+    // connectToNewUser(peerID, stream, dispatch)
   })
-
+  
   //recieve a call
   peerServer.on('call',(call)=>{
+    console.log('answer',call, stream)
     call.answer(stream);
 
     //stream back the call
     call.on('stream', (stream)=>{
-      console.log(stream);
       dispatch({type:ADD_STREAM, payload:stream})
     })
   })
 }
 
-function connectToNewUser(userID, stream, dispatch) {
-  const call = peerServer.call(userID, stream);
-  call.on('stream', (remoteVideoStream) => {
-    if(remoteVideoStream){
-      dispatch({type:ADD_REMOTE_STREAM, payload:remoteVideoStream})
-    }
-  })
-}
+// function connectToNewUser(peerID, stream, dispatch) {
+//   const peerServer = peer();
+//   const call = peerServer.call(peerID, stream);
+//   call.on('stream', (remoteVideoStream) => {
+//     if(remoteVideoStream){
+//       dispatch({type:ADD_REMOTE_STREAM, payload:remoteVideoStream})
+//     }
+//   })
+// }

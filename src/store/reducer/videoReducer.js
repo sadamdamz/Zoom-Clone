@@ -21,7 +21,7 @@ export default (state=initialState, {type, payload}) => {
     case ADD_REMOTE_STREAM: 
       return {
         ...state,
-        remoteStreams: [...state.remoteStreams, payload]
+        remoteStreams: [...state.remoteStreams,payload]
       }
     default:
      return state;

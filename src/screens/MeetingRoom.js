@@ -32,7 +32,7 @@ class MeetingRoom extends Component {
   }
 
   componentDidMount() {
-    let isFront = true;
+    let isFront = false;
     mediaDevices.enumerateDevices().then((sourceInfos) => {
       let videoSourceId;
       for (let i = 0; i < sourceInfos.length; i++) {
@@ -56,9 +56,9 @@ class MeetingRoom extends Component {
             facingMode: isFront ? 'user' : 'environment',
             optional: videoSourceId ? [{sourceId: videoSourceId}] : [],
           },
+
         })
         .then((stream) => {
-          // this.setData(stream);
           this.props.joinRoom(stream);
         })
         .catch((error) => {
@@ -68,12 +68,8 @@ class MeetingRoom extends Component {
   }
 
   componentWillUnmount() {
-    this.setData('');
+    // this.setData('');
   }
-
-  setData = (stream) => {
-    this.setState({stream: stream});
-  };
 
   muteAudio = () => {
     const {mute} = this.state;
@@ -88,10 +84,10 @@ class MeetingRoom extends Component {
   render() {
     const {
       navigation,
-      video: {myStream, streams},
+      video: {myStream, streams, remoteStreams},
     } = this.props;
     const {mute, video} = this.state;
-    // console.log(streams, myStream);
+    console.log(myStream, streams, remoteStreams)
     return (
       <Block style={styles.parent}>
         <Block style={styles.child1}>
@@ -110,16 +106,29 @@ class MeetingRoom extends Component {
           <ScrollView horizontal={true}>
             {streams.length > 0 ? (
               <>
-                {streams.map((stream, index) => (
+                {streams.map((stream, index) => {
+                  return(
                     <Block style={styles.scrollChilds} key={index}>
-                      {stream ? (
                           <RTCView
                             streamURL={stream.toURL()}
                             style={styles.childRtc}
                           />
-                       ) : null} 
                     </Block>
-                  )
+                  )}
+                )}
+              </>
+            ) : null}
+           {remoteStreams.length > 0 ? (
+              <>
+                {remoteStreams.map((stream, index) => {
+                  return(
+                    <Block style={styles.scrollChilds} key={index}>
+                          <RTCView
+                            streamURL={stream.toURL()}
+                            style={styles.childRtc}
+                          />
+                    </Block>
+                  )}
                 )}
               </>
             ) : null}
