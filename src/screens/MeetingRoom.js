@@ -58,7 +58,7 @@ class MeetingRoom extends Component {
           },
         })
         .then((stream) => {
-          this.setData(stream);
+          // this.setData(stream);
           this.props.joinRoom(stream);
         })
         .catch((error) => {
@@ -91,6 +91,7 @@ class MeetingRoom extends Component {
       video: {myStream, streams},
     } = this.props;
     const {mute, video} = this.state;
+    // console.log(streams, myStream);
     return (
       <Block style={styles.parent}>
         <Block style={styles.child1}>
@@ -109,20 +110,17 @@ class MeetingRoom extends Component {
           <ScrollView horizontal={true}>
             {streams.length > 0 ? (
               <>
-                {streams.map((item, index) => {
-                  return (
+                {streams.map((stream, index) => (
                     <Block style={styles.scrollChilds} key={index}>
-                      {this.state.stream ? (
-                        <>
+                      {stream ? (
                           <RTCView
-                            streamURL={this.state.stream.toURL()}
+                            streamURL={stream.toURL()}
                             style={styles.childRtc}
                           />
-                        </>
-                      ) : null}
+                       ) : null} 
                     </Block>
-                  );
-                })}
+                  )
+                )}
               </>
             ) : null}
           </ScrollView>
