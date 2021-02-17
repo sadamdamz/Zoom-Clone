@@ -32,9 +32,7 @@ io.on('connection', function(socket){
   socket.on('join-room', ({roomId,peerID})=>{
     console.log('newuser',roomId,peerID);
     socket.join(roomId);
-    socket.to(roomId).broadcast.emit('user-connected', (peerID)=>{
-      console.log(peerID)
-    });
+    socket.to(roomId).broadcast.emit('user-connected', peerID)
   })
 })
 
