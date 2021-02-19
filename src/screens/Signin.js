@@ -5,13 +5,15 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 import {Button} from '../components/index';
+import {Images, Theme} from '../constants';
 import {Block} from 'galio-framework';
-import {Theme} from '../constants';
 import {Input} from '../components';
 import {LoginValidation} from '../helper/formik';
 import {Formik} from 'formik';
+import {Google, Facebook} from '../auth';
 import auth from '@react-native-firebase/auth';
 
 class Signin extends Component {
@@ -66,6 +68,7 @@ class Signin extends Component {
   render() {
     const {navigation} = this.props;
     return (
+      
       <Block style={styles.appContainer}>
         <SafeAreaView style={styles.safeArea}>
           <Block style={styles.container}>
@@ -76,13 +79,14 @@ class Signin extends Component {
               <Text style={styles.txtColor}>Join A Meeting</Text>
             </Button>
           </Block>
+          <ScrollView>
           <Formik
             validationSchema={LoginValidation}
             initialValues={{email: '', password: ''}}
             onSubmit={(values) => this.handleSubmit(values)}>
             {({handleChange, handleBlur, handleSubmit, values, errors}) => (
               <Block style={styles.btnContainer}>
-                <ScrollView>
+                {/* <ScrollView> */}
                   <Text>Email</Text>
                   <Input
                     placeholder="Email"
@@ -111,12 +115,39 @@ class Signin extends Component {
                     </Text>
                   )}
                   <TouchableOpacity onPress={handleSubmit}>
-                    <Text style={styles.signTxt}>Sign Up</Text>
+                    <Text style={styles.signTxt}>Sign In</Text>
                   </TouchableOpacity>
-                </ScrollView>
+                {/* </ScrollView> */}
               </Block>
             )}
           </Formik>
+          <Text style={styles.orTxt} >(or)</Text>
+          <Block row space="around" style={styles.loginUsing}>
+            <Block>
+              <TouchableOpacity
+                onPress={() =>
+                  Facebook().then(() => console.log('Signed in with FaceBook!'))
+                }>
+                <Image source={Images.Facebook} style={styles.imgIcon} />
+              </TouchableOpacity>
+            </Block>
+            <Block>
+              <TouchableOpacity
+                onPress={() =>
+                  Google().then(() => console.log('Signed in with Google!'))
+                }>
+                <Image source={Images.Google} style={styles.imgIcon} />
+              </TouchableOpacity>
+            </Block>
+            <Block>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Phone Verification')}>
+                <Image source={Images.Whatsapp} style={styles.imgIcon} />
+              </TouchableOpacity>
+            </Block>
+          </Block>
+          </ScrollView>
+
         </SafeAreaView>
       </Block>
     );
@@ -126,6 +157,11 @@ class Signin extends Component {
 export default Signin;
 
 const styles = StyleSheet.create({
+  imgIcon: {
+    height: 50,
+    width: 50,
+    margin: 25,
+  },
   appContainer: {
     flex: 1,
     backgroundColor: Theme.COLORS.WHITE,
@@ -139,7 +175,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   container: {
-    flex: 2,
+    flex: 7,
     backgroundColor: Theme.COLORS.BLUE,
     width: '100%',
     height: '100%',
@@ -173,4 +209,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingTop: 20,
   },
+  orTxt: {
+    textAlign: 'center',
+    paddingTop: 20,
+  }
 });

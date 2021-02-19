@@ -2,7 +2,7 @@ import { JOIN_CHAT, ADD_STREAM, MY_STREAM, ADD_REMOTE_STREAM } from './types';
 import IO from 'socket.io-client';
 import Peer from 'react-native-peerjs'
 
-export const API_URL = `http://139.59.34.203:5000/mypeer`;
+export const API_URL = `http://139.59.34.203:5000`;
 
 const peer = () => {
   return new Peer(undefined, {
