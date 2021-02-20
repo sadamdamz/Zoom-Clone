@@ -1,26 +1,24 @@
-import React, {Component} from 'react';
+import React, {useState, useEffect} from 'react';
 import {StyleSheet, Text, TouchableOpacity} from 'react-native';
 import {Block} from 'galio-framework';
 import {Input, Button} from '../components';
 import {Theme} from '../constants';
 
-class JoinMeeting extends Component {
-  constructor(props) {
-    super(props);
-  }
-  handleChange = (value, name) => {
-    console.log(value, name);
+const JoinMeeting = (props) => {
+  const [meetingId, setMeetingId] = useState(null);
+
+  const handleChange = (value) => {
+    setMeetingId(value);
   };
 
-  render() {
-    const {navigation} = this.props;
+    const {navigation} = props;
     return (
       <Block safe flex style={styles.container}>
         <Block style={styles.children}>
           <Text>Meeting ID</Text>
           <Input
             placeholder="Meeting ID"
-            onChangeText={(e) => this.handleChange(e, 'key')}
+            onChangeText={(e) => handleChange(e)}
           />
         </Block>
         <Block style={styles.proceedChild}>
@@ -30,7 +28,6 @@ class JoinMeeting extends Component {
         </Block>
       </Block>
     );
-  }
 }
 
 export default JoinMeeting;

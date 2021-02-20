@@ -1,15 +1,39 @@
-import React, {Component} from 'react';
-import {Text, StyleSheet, Image} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import Clipboard from '@react-native-clipboard/clipboard';
 import {Block} from 'galio-framework';
 import {Theme, Images} from '../constants/index';
 import {Input, Button} from '../components';
+import {getMeetingId} from '../axios/user';
 
-class Invite extends Component {
-  constructor(props){
-    super(props);
+const Invite = (props) => {
+  const [meetingId, setMeetingId] = useState(null);
+  const [text, setCopiedText] = useState(null);
+  const {navigation, user} = props;
+
+  useEffect(()=>{
+    getId()
+  },[])
+
+  const getId = async() =>{
+    let postData = {
+      uid:user._user.uid
+    }
+    let api = await getMeetingId(postData);
+    setMeetingId(api.meetingId);
+    console.log(api);
   }
-  render() {
-    const {navigation} = this.props;
+
+  const copyToClipboard = (data) => {
+    Clipboard.setString(data)
+  }
+
+  const fetchCopiedText = async () => {
+    const text = await Clipboard.getString()
+    setCopiedText(text)
+  }
+
+
     return (
       <Block safe={true} style={styles.container}>
         <Block>
@@ -21,19 +45,26 @@ class Invite extends Component {
         </Block>
         <Block row={true} style={styles.child2}>
           <Text style={styles.meetingLink}>
-            https://meeting?432&dkfnacisdosos==
+            {
+              `https://zoom.clone.com?${meetingId}`
+            }
           </Text>
-          <Image style={styles.copyIcon} source={Images.Copy} />
+          <TouchableOpacity onPress={()=>copyToClipboard(`https://zoom.clone.com?${meetingId}`)}>
+          <Image style={styles.copyIcon} source={Images.Copy}/>
+          </TouchableOpacity>
         </Block>
         <Block row={true} style={styles.child2}>
-          <Text style={styles.meetingId}>7899289</Text>
+          <Text style={styles.meetingId}>{meetingId}</Text>
+          <TouchableOpacity onPress={()=>copyToClipboard(`${meetingId}`)}>
           <Image style={styles.copyIcon} source={Images.Copy} />
+          </TouchableOpacity>
         </Block>
         <Block style={styles.child3}>
           <Input
             placeholder="Add Participants"
             onChangeText={(e)=>console.log(e)}
             style={styles.input}
+            value={text}
           />
         </Block>
         <Block style={styles.child4}>
@@ -42,13 +73,14 @@ class Invite extends Component {
         <Block style={styles.child5}>
         <Button
             style={styles.sendBtn}
-            onPress={() => navigation.goBack()}>
+            // onPress={() => navigation.goBack()}
+            onPress={fetchCopiedText}
+            >
             <Text style={styles.sendTxt}>Send</Text>
           </Button>
         </Block>
       </Block>
     );
-  }
 }
 
 export default Invite;
