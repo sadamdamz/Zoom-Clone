@@ -3,15 +3,23 @@ import {StyleSheet, Text, TouchableOpacity} from 'react-native';
 import {Block} from 'galio-framework';
 import {Input, Button} from '../components';
 import {Theme} from '../constants';
+import {joinMeetingRoom} from '../axios/user';
 
 const JoinMeeting = (props) => {
   const [meetingId, setMeetingId] = useState(null);
+  const {navigation} = props;
 
   const handleChange = (value) => {
     setMeetingId(value);
   };
 
-    const {navigation} = props;
+  const handleSubmit = async() => {
+    let api = await joinMeetingRoom({meetingId:meetingId});
+    console.log(api);
+    alert(api.message);
+    // navigation.navigate('MeetingRoom')
+  }
+  
     return (
       <Block safe flex style={styles.container}>
         <Block style={styles.children}>
@@ -22,7 +30,7 @@ const JoinMeeting = (props) => {
           />
         </Block>
         <Block style={styles.proceedChild}>
-          <TouchableOpacity onPress={() => navigation.navigate('MeetingRoom')}>
+          <TouchableOpacity onPress={() => handleSubmit()}>
             <Text style={styles.proceed}>Proceed</Text>
           </TouchableOpacity>
         </Block>
