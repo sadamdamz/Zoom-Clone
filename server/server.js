@@ -1,5 +1,6 @@
 const express = require('express');
 const http = require('http');
+const bodyParser = require('body-parser');
 const socketio = require('socket.io');
 const morgan = require('morgan');
 
@@ -12,6 +13,8 @@ const server = http.createServer(app);
 const io = socketio(server).sockets;
 
 app.use(express.json());
+
+app.use(bodyParser.json({ type: 'application/*+json' }));
 
 const customGenrationFunction = () => {
   return(
@@ -26,6 +29,8 @@ const peerServer = ExpressPeerServer(server, {
 });
 
 app.use('/mypeer', peerServer);
+
+app.use('/api/v1', require('./routes/firebase'))
 
 io.on('connection', function(socket){
   console.log('socket connected')
