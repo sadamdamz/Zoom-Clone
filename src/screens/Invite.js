@@ -7,6 +7,7 @@ import {
   TextInput,
   SafeAreaView,
   ScrollView,
+  ToastAndroid
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import {Block} from 'galio-framework';
@@ -18,6 +19,7 @@ const Invite = (props) => {
   const [meetingId, setMeetingId] = useState(null);
   const [value, setValue] = useState('');
   const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(false);
   const {navigation, user} = props;
 
   useEffect(()=>{
@@ -52,6 +54,7 @@ const Invite = (props) => {
   };
 
   const sendInvitation = async () => {
+    setLoading(true);
     let postData = {
       meetingId: meetingId,
       userName: user._user.displayName,
@@ -59,7 +62,12 @@ const Invite = (props) => {
     }
     console.log(postData);
     let api = await users.sendInvitationEmail(postData);
-    console.log(api);
+    if(api.status==200){
+      ToastAndroid.show("Invitation Email Sent", ToastAndroid.SHORT);
+    }else{
+      ToastAndroid.show("Invalid Email", ToastAndroid.SHORT);
+    }
+    setLoading(false);
   }
 
   const handleSubmit = () => {
@@ -134,6 +142,7 @@ const Invite = (props) => {
           <Button
             style={styles.sendBtn}
             onPress={sendInvitation}
+            loading={loading}
           >
             <Text style={styles.sendTxt}>Send</Text>
           </Button>

@@ -12,6 +12,7 @@ const sendInvitation = async(req, res) => {
     console.log('email');
     if(err){
       console.log(err);
+      res.send({status:501, message:'Email Not Sent'})
       return false
     }else{
       res.send({status:200, message:'Invitation Sent to Email'})
