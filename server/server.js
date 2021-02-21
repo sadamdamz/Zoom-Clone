@@ -41,6 +41,10 @@ io.on('connection', function(socket){
   })
 })
 
+io.on('disconnect', function(socket){
+  console.log('User with socketId %s disconnected', socket.id);
+});
+
 const port = process.env.PORT || 5000;
 
 server.listen(port, ()=>console.log(`server is running on port ${port}`));

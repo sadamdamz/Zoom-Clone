@@ -15,25 +15,24 @@ const meetingID = async(req, res) => {
   }
   try {
     await db.ref('users/'+uid).once('value').then((snapshot)=>{
-      if(snapshot.exists()){
-        res.send(snapshot.val());
-      }else{
         db.ref('users/'+uid).set(postData);
         res.send(postData);
-      }
     });
-    await db.ref('meetings/'+meetingId).set({host:false});
   } catch (error) {
     res.send({status:501,error:error});
   }
 }
 
 const hostMeetingController = async(req, res) => {
-  const {meetingId,host} = req.body;
+  const {meetingId,host,user} = req.body;
+  let users = [user];
   try {
-    let data = await db.ref('meetings/'+meetingId).set({host:host});
-    console.log(data);
-    res.send({status:200,message:'Meeting Started'});
+    let data = await db.ref('meetings/'+meetingId).set({host:host,users:users});
+    if(host){
+      res.send({status:200,message:'Meeting Started'});
+    }else{
+      res.send({status:200,message:'Meeting Ended'});
+    }
   } catch (error) {
     res.send({status:501,error:error})
   }
@@ -41,13 +40,17 @@ const hostMeetingController = async(req, res) => {
 
 
 const joinRoom = async(req, res) =>{
-  const {meetingId} = req.body;
+  const {meetingId, user} = req.body;
   try {
     let snapshot = await db.ref('meetings/'+meetingId).once('value');
     if(snapshot.exists() && snapshot.val().host===false){
       res.send({status:204,message:"Host Not Started the meeting"})
     }
     else if(snapshot.exists() && snapshot.val().host===true){
+      let users = await db.ref('meetings/'+meetingId).once('value');
+      let data = users.val();
+      data.users = [...data.users, user];
+      await db.ref('meetings/'+meetingId).set(data);
       res.send({status:200, message:"You can Join Now"})
     }
     else{
@@ -58,9 +61,39 @@ const joinRoom = async(req, res) =>{
   }
 }
 
+const getMeetingDetails = async(req,res) => {
+  const {meetingId, user} = req.params;
+  try {
+    let data = await db.ref('meetings/'+meetingId).get();
+    res.send({status:200, message:'Meeting Details', data:data});
+  } catch (error) {
+    res.send({status:501,error:error});
+  }
+}
+
+const endMeeting = async(req, res) => {
+  const {meetingId, user} = req.body;
+  try {
+    let get = await db.ref('meetings/'+meetingId).get().val();
+    if(get.users.length==0){
+      await db.ref('meetings/'+meetingId).remove()
+    }else{
+      let users = get.users.filter((item,index)=>{
+        return item.uid !== user.uid;
+      })
+      await db.ref('meetings/'+meetingId).set({host:true,users:users});
+    }
+    res.send({status:200, message:`meetingId:${meetingId} Ended Successfully`})
+  } catch (error) {
+    res.send({status:501,error:error});
+  }
+}
+
 module.exports = {
   getUser,
   meetingID,
   hostMeetingController,
-  joinRoom
+  joinRoom,
+  endMeeting,
+  getMeetingDetails
 }
