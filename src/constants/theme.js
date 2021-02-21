@@ -13,6 +13,7 @@ const COLORS = {
   ICON: '#172B4D',
   GRAYBLACK: '#35364c',
   Disable: '#88888c',
+  GRAYBACKGROUND: '#cdcdcd',
 }
 
 const SIZES = {
@@ -20,7 +21,7 @@ const SIZES = {
   FONT: 16,
   OPACITY: 0.8,
   BTNRADIUS: 10,
-  
+  SMFONT: 12,
 };
 
 export default { COLORS, SIZES };

@@ -43,9 +43,20 @@ const getMeetingDetailById = async(id) => {
   }
 }
 
+const sendInvitationEmail = async(postData) => {
+  try {
+    let api = await axios.post(`${API_URL}/api/v1/mail/sendInvitation`, postData);
+    let response = await api.data;
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 export default {
   getMeetingId,
   hostMeetingController,
   joinMeetingRoom,
-  getMeetingDetailById
+  getMeetingDetailById,
+  sendInvitationEmail
 }

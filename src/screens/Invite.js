@@ -1,5 +1,13 @@
 import React, {useEffect, useState} from 'react';
-import {Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import {
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  TextInput,
+  SafeAreaView,
+  ScrollView,
+} from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import {Block} from 'galio-framework';
 import {Theme, Images} from '../constants/index';
@@ -8,48 +16,73 @@ import {users} from '../axios';
 
 const Invite = (props) => {
   const [meetingId, setMeetingId] = useState(null);
-  const [text, setCopiedText] = useState(null);
+  const [value, setValue] = useState('');
+  const [items, setItems] = useState([]);
   const {navigation, user} = props;
 
   useEffect(()=>{
     getId()
   },[])
 
-  const getId = async() =>{
+  const getId = async () => {
     let postData = {
-      uid:user._user.uid
-    }
+      uid: user._user.uid,
+    };
     let api = await users.getMeetingId(postData);
     setMeetingId(api.meetingId);
     console.log(api);
-  }
+  };
 
   const copyToClipboard = (data) => {
-    Clipboard.setString(data)
-  }
+    Clipboard.setString(data);
+  };
 
-  const fetchCopiedText = async () => {
-    const text = await Clipboard.getString()
-    setCopiedText(text)
-  }
-
-  const handleStartMeeting = async() => {
+  const handleStartMeeting = async () => {
     let postData = {
-      meetingId:meetingId,
-      host:true,
-      user:user._user,
-    }
+      meetingId: meetingId,
+      host: true,
+      user: user._user,
+    };
     let api = await users.hostMeetingController(postData);
     console.log(api);
-    navigation.navigate('MeetingRoom',{
-      meetingId:meetingId,
-      user: user._user
-    })
+    navigation.navigate('MeetingRoom', {
+      meetingId: meetingId,
+      user: user._user,
+    });
+  };
+
+  const sendInvitation = async () => {
+    let postData = {
+      meetingId: meetingId,
+      userName: user._user.displayName,
+      mailTo: items,
+    }
+    console.log(postData);
+    let api = await users.sendInvitationEmail(postData);
+    console.log(api);
   }
 
+  const handleSubmit = () => {
+    if (value.trim().length == 0) {
+      return;
+    } else {
+      setValue('');
+      setItems([...items, value]);
+    }
+    console.log(items);
+  };
 
-    return (
-      <Block safe={true} style={styles.container}>
+  const removeList = (key) => {
+    console.log(key, 'remove');
+    let item = items.filter((value,index)=>{
+      return key!==value 
+    })
+    setItems(item);
+  }
+
+  return (
+    <SafeAreaView safe={true} style={styles.container}>
+      <ScrollView>
         <Block>
           <Text style={styles.inviteTxt}>INVITE PARTICIPANTS</Text>
           <Text style={styles.content}>
@@ -59,50 +92,61 @@ const Invite = (props) => {
         </Block>
         <Block row={true} style={styles.child2}>
           <Text style={styles.meetingLink}>
-            {
-              `https://zoom.clone.com?${meetingId}`
-            }
+            {`https://zoom.clone.com?${meetingId}`}
           </Text>
-          <TouchableOpacity onPress={()=>copyToClipboard(`https://zoom.clone.com?${meetingId}`)}>
-          <Image style={styles.copyIcon} source={Images.Copy}/>
+          <TouchableOpacity
+            onPress={() =>
+              copyToClipboard(`https://zoom.clone.com?${meetingId}`)
+            }>
+            <Image style={styles.copyIcon} source={Images.Copy} />
           </TouchableOpacity>
         </Block>
         <Block row={true} style={styles.child2}>
           <Text style={styles.meetingId}>{meetingId}</Text>
-          <TouchableOpacity onPress={()=>copyToClipboard(`${meetingId}`)}>
-          <Image style={styles.copyIcon} source={Images.Copy} />
+          <TouchableOpacity onPress={() => copyToClipboard(`${meetingId}`)}>
+            <Image style={styles.copyIcon} source={Images.Copy} />
           </TouchableOpacity>
         </Block>
         <Block style={styles.child3}>
-          <Input
+          <TextInput
             placeholder="Add Participants"
-            onChangeText={(e)=>console.log(e)}
+            onChangeText={(e) => setValue(e)}
+            onSubmitEditing={handleSubmit}
             style={styles.input}
-            value={text}
+            value={value}
           />
+          <Block style={styles.selectedBox}>
+            <ScrollView>
+              <Block style={styles.list}>
+                {items.map((item, index) => (
+                  <Block style={styles.childList} onPress={()=>removeList(item)} key={index}>
+                    <Text style={{fontSize:Theme.SIZES.SMFONT}} onPress={()=>removeList(item)}>{item}</Text>
+                  </Block>
+                ))}
+              </Block>
+            </ScrollView>
+          </Block>
         </Block>
         <Block style={styles.child4}>
-        <Image style={styles.emailIcon} source={Images.Email} />
+          <Image style={styles.emailIcon} source={Images.Email} />
         </Block>
         <Block style={styles.child5}>
-        <Button
+          <Button
             style={styles.sendBtn}
-            // onPress={handleStartMeeting}
-            >
+            onPress={sendInvitation}
+          >
             <Text style={styles.sendTxt}>Send</Text>
           </Button>
         </Block>
         <Block style={styles.child5}>
-        <Button
-            style={styles.sendBtn}
-            onPress={handleStartMeeting}
-            >
+          <Button style={styles.sendBtn} onPress={handleStartMeeting}>
             <Text style={styles.sendTxt}>Start Meeting</Text>
           </Button>
         </Block>
-      </Block>
-    );
-}
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
 
 export default Invite;
 
@@ -110,6 +154,20 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: Theme.COLORS.WHITE,
     height: '100%',
+  },
+  list: {
+    // flex:1,
+    backgroundColor: Theme.COLORS.WHITE,
+  },
+  childList: {
+    // flex:1,
+    // flexDirection:'column',
+    margin:5,
+    padding:5,
+    backgroundColor: Theme.COLORS.GRAYBACKGROUND,
+    borderRadius: 3,
+    width: '50%',
+    fontSize: 2,
   },
   child2: {
     textAlign: 'center',
@@ -119,14 +177,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   child3: {
-    paddingTop: 20,
+    marginTop: 20,
+    width: '90%',
+    alignItems: 'center',
+    textAlign: 'center',
+    marginLeft: 20,
+    marginRight: 10,
+  },
+  selectedBox: {
+    borderWidth: 2,
+    borderColor: Theme.COLORS.BLUE,
+    // borderRadius: 10,
+    width: '100%',
+    height: 130,
   },
   child4: {
-    paddingTop: 90
+    paddingTop: 30,
   },
   child5: {
-    paddingTop: 30,
-    alignItems: 'center'
+    paddingTop: 10,
+    alignItems: 'center',
   },
   sendBtn: {
     backgroundColor: Theme.COLORS.BLUE,
@@ -137,15 +207,13 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   emailIcon: {
-    width: 150,
-    height: 150,
+    width: 100,
+    height: 100,
     marginLeft: 'auto',
-    marginRight: 'auto'
+    marginRight: 'auto',
   },
   input: {
-    width: '70%',
-    marginLeft: 'auto',
-    marginRight: 'auto'
+    width: '100%',
   },
   inviteTxt: {
     width: '100%',

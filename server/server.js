@@ -30,7 +30,8 @@ const peerServer = ExpressPeerServer(server, {
 
 app.use('/mypeer', peerServer);
 
-app.use('/api/v1', require('./routes/firebase'))
+app.use('/api/v1', require('./routes/firebase'));
+app.use('/api/v1/mail', require('./routes/email'));
 
 io.on('connection', function(socket){
   console.log('socket connected')
