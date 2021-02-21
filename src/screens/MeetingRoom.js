@@ -32,6 +32,16 @@ class MeetingRoom extends Component {
   }
 
   componentDidMount() {
+    const {meetingId, user, } = this.props.route.params;
+    const {mute, video} = this.state;
+    this.getMedia(meetingId, user, mute, video);
+  }
+
+  componentWillUnmount() {
+    // this.setData('');
+  }
+
+  getMedia = (meetingId, user) => {
     let isFront = false;
     mediaDevices.enumerateDevices().then((sourceInfos) => {
       let videoSourceId;
@@ -59,16 +69,12 @@ class MeetingRoom extends Component {
 
         })
         .then((stream) => {
-          this.props.joinRoom(stream);
+          this.props.joinRoom(stream, meetingId, user);
         })
         .catch((error) => {
           console.log(error);
         });
     });
-  }
-
-  componentWillUnmount() {
-    // this.setData('');
   }
 
   muteAudio = () => {

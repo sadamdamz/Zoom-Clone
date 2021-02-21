@@ -2,11 +2,11 @@ import { JOIN_CHAT, ADD_STREAM, MY_STREAM, ADD_REMOTE_STREAM } from './types';
 import IO from 'socket.io-client';
 import Peer from 'react-native-peerjs'
 
-export const API_URL = `http://139.59.34.203:5000`;
+export const API_URL = `http://192.168.43.20:5000`;
 
 const peer = () => {
   return new Peer(undefined, {
-    host: '139.59.34.203',
+    host: '192.168.43.20',
     secure: false,
     port: 5000,
     path: '/mypeer'
@@ -24,10 +24,10 @@ socket.on('connection',()=>{
 
 
 
-export const joinRoom = (stream) => async(dispatch) => {
+export const joinRoom = (stream, meetingId, user) => async(dispatch) => {
   const peerServer = peer();
-
-  const roomId = '123456';
+  
+  const roomId = meetingId;
 
   dispatch({type:MY_STREAM, payload:stream});
 
@@ -59,13 +59,3 @@ export const joinRoom = (stream) => async(dispatch) => {
     })
   })
 }
-
-// function connectToNewUser(peerID, stream, dispatch) {
-//   const peerServer = peer();
-//   const call = peerServer.call(peerID, stream);
-//   call.on('stream', (remoteVideoStream) => {
-//     if(remoteVideoStream){
-//       dispatch({type:ADD_REMOTE_STREAM, payload:remoteVideoStream})
-//     }
-//   })
-// }

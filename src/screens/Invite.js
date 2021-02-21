@@ -4,7 +4,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import {Block} from 'galio-framework';
 import {Theme, Images} from '../constants/index';
 import {Input, Button} from '../components';
-import {getMeetingId} from '../axios/user';
+import {users} from '../axios';
 
 const Invite = (props) => {
   const [meetingId, setMeetingId] = useState(null);
@@ -19,7 +19,7 @@ const Invite = (props) => {
     let postData = {
       uid:user._user.uid
     }
-    let api = await getMeetingId(postData);
+    let api = await users.getMeetingId(postData);
     setMeetingId(api.meetingId);
     console.log(api);
   }
@@ -31,6 +31,20 @@ const Invite = (props) => {
   const fetchCopiedText = async () => {
     const text = await Clipboard.getString()
     setCopiedText(text)
+  }
+
+  const handleStartMeeting = async() => {
+    let postData = {
+      meetingId:meetingId,
+      host:true,
+      user:user._user,
+    }
+    let api = await users.hostMeetingController(postData);
+    console.log(api);
+    navigation.navigate('MeetingRoom',{
+      meetingId:meetingId,
+      user: user._user
+    })
   }
 
 
@@ -73,10 +87,17 @@ const Invite = (props) => {
         <Block style={styles.child5}>
         <Button
             style={styles.sendBtn}
-            // onPress={() => navigation.goBack()}
-            onPress={fetchCopiedText}
+            // onPress={handleStartMeeting}
             >
             <Text style={styles.sendTxt}>Send</Text>
+          </Button>
+        </Block>
+        <Block style={styles.child5}>
+        <Button
+            style={styles.sendBtn}
+            onPress={handleStartMeeting}
+            >
+            <Text style={styles.sendTxt}>Start Meeting</Text>
           </Button>
         </Block>
       </Block>

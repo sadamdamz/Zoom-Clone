@@ -3,20 +3,27 @@ import {StyleSheet, Text, TouchableOpacity} from 'react-native';
 import {Block} from 'galio-framework';
 import {Input, Button} from '../components';
 import {Theme} from '../constants';
-import {joinMeetingRoom} from '../axios/user';
+import {users} from '../axios';
 
 const JoinMeeting = (props) => {
   const [meetingId, setMeetingId] = useState(null);
-  const {navigation} = props;
+  const {navigation, user} = props;
 
   const handleChange = (value) => {
     setMeetingId(value);
   };
 
   const handleSubmit = async() => {
-    let api = await joinMeetingRoom({meetingId:meetingId});
+    let api = await users.joinMeetingRoom({meetingId:meetingId, user:user._user});
     console.log(api);
-    alert(api.message);
+    if(api.status===200){
+      navigation.navigate('MeetingRoom',{
+        meetingId:meetingId,
+        user: user._user
+      })
+    }else{
+      alert(api.message);
+    }
     // navigation.navigate('MeetingRoom')
   }
   
