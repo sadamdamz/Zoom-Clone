@@ -9,14 +9,13 @@ import {
 } from 'react-native';
 import {Theme} from '../constants';
 import {Block} from 'galio-framework';
-import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {Button} from '../components/index';
 import {
   mediaDevices,
   RTCView,
 } from 'react-native-webrtc';
 import {connect} from 'react-redux';
-import {joinRoom} from '../store/action/videoAction';
+import {joinRoom,muteAudio,muteVideo} from '../store/action/videoAction';
 import FontAwesome from 'react-native-vector-icons/dist/FontAwesome';
 import FontAwesome5 from 'react-native-vector-icons/dist/FontAwesome5';
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
@@ -56,11 +55,11 @@ class MeetingRoom extends Component {
   };
 
   componentWillUnmount() {
-    // this.setData('');
+    // this.setStream('');
   }
 
   getMedia = (meetingId, user) => {
-    let isFront = false;
+    let isFront = true;
     mediaDevices.enumerateDevices().then((sourceInfos) => {
       let videoSourceId;
       for (let i = 0; i < sourceInfos.length; i++) {
@@ -109,22 +108,15 @@ class MeetingRoom extends Component {
     const {mute} = this.state;
     this.state.stream._tracks[0].enabled = !mute;
     this.setState({mute: !mute, stream: this.state.stream});
+    this.props.muteAudio(this.state.stream);
   };
 
   muteCamera = () => {
-    const {
-      navigation,
-      video: {
-        myStream,
-        streams, 
-        remoteStreams
-      },
-    } = this.props;
-    console.log(myStream, streams, remoteStreams)
     //disable video
     const {video} = this.state;
     this.state.stream._tracks[1].enabled = !video;
     this.setState({video: !video, stream: this.state.stream});
+    this.props.muteVideo(this.state.stream);
   };
 
   render() {
@@ -155,9 +147,11 @@ class MeetingRoom extends Component {
         </Block>
         <Block style={styles.child2}>
           {myStream ? (
+            myStream._tracks[1].enabled == true?(
             <>
               <RTCView streamURL={myStream.toURL()} style={styles.mainRtc} />
             </>
+            ):null
           ) : null}
         </Block>
         <Block style={styles.child3}>
@@ -167,10 +161,14 @@ class MeetingRoom extends Component {
                 {streams.map((stream, index) => {
                   return (
                     <Block style={styles.scrollChilds} key={index}>
-                      <RTCView
-                        streamURL={stream.toURL()}
-                        style={styles.childRtc}
-                      />
+                      {
+                        stream._tracks[1].enabled == true?(
+                          <RTCView
+                          streamURL={stream.toURL()}
+                          style={styles.childRtc}
+                        />
+                        ):null
+                      }
                     </Block>
                   );
                 })}
@@ -181,10 +179,14 @@ class MeetingRoom extends Component {
                 {remoteStreams.map((stream, index) => {
                   return (
                     <Block style={styles.scrollChilds} key={index}>
-                      <RTCView
-                        streamURL={stream.toURL()}
-                        style={styles.childRtc}
-                      />
+                      {
+                        stream._tracks[1].enabled == true?(
+                          <RTCView
+                          streamURL={stream.toURL()}
+                          style={styles.childRtc}
+                        />
+                        ):null
+                      }
                     </Block>
                   );
                 })}
@@ -306,4 +308,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default connect(mapStateToProps, {joinRoom})(MeetingRoom);
+export default connect(mapStateToProps, {joinRoom,muteAudio,muteVideo})(MeetingRoom);
