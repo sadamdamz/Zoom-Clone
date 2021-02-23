@@ -11,7 +11,10 @@ import {Theme} from '../constants';
 import {Block} from 'galio-framework';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {Button} from '../components/index';
-import {mediaDevices, RTCView} from 'react-native-webrtc';
+import {
+  mediaDevices,
+  RTCView,
+} from 'react-native-webrtc';
 import {connect} from 'react-redux';
 import {joinRoom} from '../store/action/videoAction';
 import FontAwesome from 'react-native-vector-icons/dist/FontAwesome';
@@ -21,6 +24,14 @@ import Feather from 'react-native-vector-icons/dist/Feather';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
+
+const config = [
+  'ended',
+  'mute',
+  'unmute',
+  // see: https://www.w3.org/TR/mediacapture-streams/#constrainable-interface
+  'overconstrained',
+];
 
 class MeetingRoom extends Component {
   constructor(props) {
@@ -32,10 +43,17 @@ class MeetingRoom extends Component {
   }
 
   componentDidMount() {
-    const {meetingId, user, } = this.props.route.params;
+    const {meetingId, user} = this.props.route.params;
     const {mute, video} = this.state;
     this.getMedia(meetingId, user, mute, video);
   }
+
+  switchCam = () => {
+    //switch camera
+    this.state.stream._tracks[1]._switchCamera();
+    console.log(this.state.stream);
+    this.setState({stream: this.state.stream});
+  };
 
   componentWillUnmount() {
     // this.setData('');
@@ -66,37 +84,71 @@ class MeetingRoom extends Component {
             facingMode: isFront ? 'user' : 'environment',
             optional: videoSourceId ? [{sourceId: videoSourceId}] : [],
           },
-
         })
         .then((stream) => {
-          this.props.joinRoom(stream, meetingId, user);
+          this.setStream(stream);
         })
         .catch((error) => {
           console.log(error);
         });
     });
+  };
+
+  setStream = (stream) => {
+    this.setState({stream});
+    this.joinRoom();
+  };
+
+  joinRoom = () => {
+    const {meetingId, user} = this.props.route.params;
+    const {stream} = this.state;
+    this.props.joinRoom(stream, meetingId, user);
   }
 
   muteAudio = () => {
     const {mute} = this.state;
-    this.setState({mute: !mute});
+    this.state.stream._tracks[0].enabled = !mute;
+    this.setState({mute: !mute, stream: this.state.stream});
   };
 
   muteCamera = () => {
+    const {
+      navigation,
+      video: {
+        myStream,
+        streams, 
+        remoteStreams
+      },
+    } = this.props;
+    console.log(myStream, streams, remoteStreams)
+    //disable video
     const {video} = this.state;
-    this.setState({video: !video});
+    this.state.stream._tracks[1].enabled = !video;
+    this.setState({video: !video, stream: this.state.stream});
   };
 
   render() {
     const {
       navigation,
-      video: {myStream, streams, remoteStreams},
+      video: {
+        myStream,
+        streams, 
+        remoteStreams
+      },
     } = this.props;
-    const {mute, video} = this.state;
-    console.log(myStream, streams, remoteStreams)
+
+    const {mute, video, stream} = this.state;
+    // console.log(myStream, streams, remoteStreams)
     return (
       <Block style={styles.parent}>
         <Block style={styles.child1}>
+          <Ionicons
+            name="camera-reverse-sharp"
+            size={23}
+            color="white"
+            style={styles.iconStyle}
+            onPress={this.switchCam}
+          />
           <Button style={styles.endBtn} onPress={() => navigation.goBack()}>
             <Text style={styles.endText}>End</Text>
           </Button>
@@ -113,29 +165,29 @@ class MeetingRoom extends Component {
             {streams.length > 0 ? (
               <>
                 {streams.map((stream, index) => {
-                  return(
+                  return (
                     <Block style={styles.scrollChilds} key={index}>
-                          <RTCView
-                            streamURL={stream.toURL()}
-                            style={styles.childRtc}
-                          />
+                      <RTCView
+                        streamURL={stream.toURL()}
+                        style={styles.childRtc}
+                      />
                     </Block>
-                  )}
-                )}
+                  );
+                })}
               </>
             ) : null}
-           {remoteStreams.length > 0 ? (
+            {remoteStreams.length > 0 ? (
               <>
                 {remoteStreams.map((stream, index) => {
-                  return(
+                  return (
                     <Block style={styles.scrollChilds} key={index}>
-                          <RTCView
-                            streamURL={stream.toURL()}
-                            style={styles.childRtc}
-                          />
+                      <RTCView
+                        streamURL={stream.toURL()}
+                        style={styles.childRtc}
+                      />
                     </Block>
-                  )}
-                )}
+                  );
+                })}
               </>
             ) : null}
           </ScrollView>
@@ -195,7 +247,11 @@ const styles = StyleSheet.create({
   },
   child1: {
     flex: 1,
-    alignItems: 'flex-end',
+    flexDirection: 'row',
+    justifyContent:'space-between',
+    alignItems: 'center',
+    paddingLeft: 20,
+    paddingRight: 20,
   },
   child2: {
     flex: 5,
