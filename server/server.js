@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const bodyParser = require('body-parser');
 const socketio = require('socket.io');
+const socketManager = require('./socket/socketManager');
 const morgan = require('morgan');
 
 const { ExpressPeerServer } = require('peer')
@@ -33,14 +34,7 @@ app.use('/mypeer', peerServer);
 app.use('/api/v1', require('./routes/firebase'));
 app.use('/api/v1/mail', require('./routes/email'));
 
-io.on('connection', function(socket){
-  console.log('socket connected')
-  socket.on('join-room', ({roomId,peerID})=>{
-    console.log('newuser',roomId,peerID);
-    socket.join(roomId);
-    socket.to(roomId).broadcast.emit('user-connected', peerID)
-  })
-})
+io.on('connection',socketManager);
 
 io.on('disconnect', function(socket){
   console.log('User with socketId %s disconnected', socket.id);
