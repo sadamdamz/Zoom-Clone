@@ -1,11 +1,11 @@
 // import {API_URL} from "@env";
 import axios from 'react-native-axios';
 
-const API_URL = 'http://192.168.43.20:5000';
+// const API_URL = 'http://192.168.43.20:5000';
 
 // const API_URL = 'http://192.168.0.103:5000';
 
-// const API_URL = `http://139.59.34.203:5000`;
+const API_URL = `http://139.59.34.203:5000`;
 
 
 const getMeetingId = async(postData) => {
