@@ -25,19 +25,18 @@ export default (state=initialState, {type, payload}) => {
         remoteStreams: [...state.remoteStreams,payload]
       }
     case REMOVE_STREAM:
+      console.log(payload.stream.id)
       let streams = state.streams.filter((item,index)=>{
-        return item.stream.id !== payload.streamid
-      })
-      let remoteStreams = state.streams.filter((item,index)=>{
         return item.stream.id !== payload.stream.id
       })
-      console.log(payload,'payload');
-      console.log(remoteStreams, streams);
+      let remoteStreams = state.remoteStreams.filter((item,index)=>{
+        return item.stream.id !== payload.stream.id
+      })
       return {
         ...state,
         myStream: null,
-        streams: streams,
-        remoteStreams: remoteStreams,
+        streams: [],
+        remoteStreams: [],
       }
     default:
      return state;

@@ -16,6 +16,14 @@ import {Input, Button} from '../components';
 import {users} from '../axios';
 import {getUserName} from '../helper/userData';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import * as AddCalendarEvent from 'react-native-add-calendar-event';
+import moment from 'moment';
+
+const utcDateToString = (momentInUTC) => {
+  let s = moment.utc(momentInUTC).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]');
+  // console.warn(s);
+  return s;
+};
 
 const Invite = (props) => {
   const [meetingId, setMeetingId] = useState(null);
@@ -25,6 +33,35 @@ const Invite = (props) => {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [date, setDate] = useState('');
   const {navigation, user} = props;
+
+  const eventTitle = 'Lunch';
+  const nowUTC = moment.utc();
+
+  const addToCalendar = (title, startDateUTC) => {
+    const eventConfig = {
+      title:'Video Call Meeting',
+      startDate: utcDateToString(date),
+      endDate: utcDateToString(moment.utc(date).add(1, 'hours')),
+      notes: 'tasty!',
+      navigationBarIOS: {
+        tintColor: 'orange',
+        backgroundColor: 'green',
+        titleColor: 'blue',
+      },
+  };
+  AddCalendarEvent.presentEventCreatingDialog(eventConfig)
+  .then((eventInfo) => {
+    // handle success - receives an object with `calendarItemIdentifier` and `eventIdentifier` keys, both of type string.
+    // These are two different identifiers on iOS.
+    // On Android, where they are both equal and represent the event id, also strings.
+    // when { action: 'CANCELED' } is returned, the dialog was dismissed
+    console.warn(JSON.stringify(eventInfo));
+  })
+  .catch((error) => {
+    // handle error such as when user rejected permissions
+    console.warn(error);
+  });
+    };
 
   useEffect(()=>{
     getId()
@@ -57,7 +94,7 @@ const Invite = (props) => {
     });
   };
 
-  const sendInvitation = async () => {
+  const sendInvitation = async (date) => {
     setLoading(true);
     let postData = {
       meetingId: meetingId,
@@ -93,16 +130,16 @@ const Invite = (props) => {
     setItems(item);
   }
 
-  const hideDatePicker = () => {
+  const hideDatePicker = (date) => {
     setDatePickerVisibility(false);
-    sendInvitation()
+    sendInvitation(date)
   };
 
   const handleConfirm = (date) => {
     // console.warn("A date has been picked: ", date);
     console.log(date);
     setDate(date);
-    hideDatePicker();
+    hideDatePicker(date);
   };
 
   const openDatePicker = () =>{
@@ -181,6 +218,15 @@ const Invite = (props) => {
             <Text style={styles.sendTxt}>Send</Text>
           </Button>
         </Block>
+        {
+          date?(
+            <Block style={styles.child5}>
+            <Button style={styles.sendBtn} onPress={addToCalendar}>
+              <Text style={styles.sendTxt}>Add to Calendar</Text>
+            </Button>
+          </Block>
+          ):null
+        }
         <Block style={styles.child5}>
           <Button style={styles.sendBtn} onPress={handleStartMeeting}>
             <Text style={styles.sendTxt}>Start Meeting</Text>

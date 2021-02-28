@@ -138,7 +138,6 @@ class MeetingRoom extends Component {
     this.props.endMeeting(meetingId,stream,user);
     // let api = await users.endMeeting(postData);
     this.props.navigation.navigate('MeetingList');
-    console.log(api);
   }
 
   render() {
