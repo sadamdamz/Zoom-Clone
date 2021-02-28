@@ -6,7 +6,7 @@ const socketToRoom = {};
 
 module.exports = function(socket){
   console.log('socket connected', socket.id)
-  socket.on('join-room', ({roomId,peerID})=>{
+  socket.on('join-room', ({peerID,roomId})=>{
     console.log('newuser',roomId,peerID);
     if(users[roomId]){
       let length = users[roomId].length;
@@ -20,12 +20,12 @@ module.exports = function(socket){
     }
     socket.join(roomId);
     socket.to(roomId).broadcast.emit('user-connected', peerID)
-    console.log(socket.rooms);
+    console.log(users);
   })
 
   socket.on('leave-room', ({roomId, socketId})=>{
-    console.log('leave room backend');
-    socket.leave(roomId).emit('user-left', socketId);
+    console.log(roomId, socketId,'leaving room');
+    socket.leave(roomId).broadcast.emit('user-left', socketId);
   })
 
   socket.on('disconnecting', () => {

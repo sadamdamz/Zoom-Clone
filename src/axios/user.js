@@ -1,9 +1,11 @@
 // import {API_URL} from "@env";
 import axios from 'react-native-axios';
 
-// const API_URL = 'http://192.168.43.20:5000';
+const API_URL = 'http://192.168.43.20:5000';
 
-const API_URL = `http://139.59.34.203:5000`;
+// const API_URL = 'http://192.168.0.103:5000';
+
+// const API_URL = `http://139.59.34.203:5000`;
 
 
 const getMeetingId = async(postData) => {
@@ -56,10 +58,21 @@ const sendInvitationEmail = async(postData) => {
   }
 }
 
+const endMeeting = async(postData) => {
+  try {
+    let api = await axios.post(`${API_URL}/api/v1/endMeeting`, postData);
+    let response = await api.data;
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 export default {
   getMeetingId,
   hostMeetingController,
   joinMeetingRoom,
   getMeetingDetailById,
-  sendInvitationEmail
+  sendInvitationEmail,
+  endMeeting
 }

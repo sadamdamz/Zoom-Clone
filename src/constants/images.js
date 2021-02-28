@@ -8,6 +8,7 @@ const Copy = require('../assets/icons/png/copy.png');
 const Email = require('../assets/icons/png/email.png');
 const Member1 = require('../assets/img/member1.png');
 const Member2 = require('../assets/img/member2.png');
+const Edit = require('../assets/icons/png/edit.png');
 
 export default {
   Mail,
@@ -19,5 +20,6 @@ export default {
   Member2,
   Settings,
   Copy,
-  Email
+  Email,
+  Edit
 }

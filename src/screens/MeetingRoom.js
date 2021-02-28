@@ -6,6 +6,8 @@ import {
   ScrollView,
   Dimensions,
   Text,
+  BackHandler, 
+  Alert
 } from 'react-native';
 import {Theme} from '../constants';
 import {Block} from 'galio-framework';
@@ -15,22 +17,15 @@ import {
   RTCView,
 } from 'react-native-webrtc';
 import {connect} from 'react-redux';
-import {joinRoom,muteAudio,muteVideo} from '../store/action/videoAction';
+import {joinRoom,muteAudio,muteVideo,endMeeting} from '../store/action/videoAction';
 import FontAwesome from 'react-native-vector-icons/dist/FontAwesome';
 import FontAwesome5 from 'react-native-vector-icons/dist/FontAwesome5';
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
 import Feather from 'react-native-vector-icons/dist/Feather';
+import {users} from '../axios';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
-
-const config = [
-  'ended',
-  'mute',
-  'unmute',
-  // see: https://www.w3.org/TR/mediacapture-streams/#constrainable-interface
-  'overconstrained',
-];
 
 class MeetingRoom extends Component {
   constructor(props) {
@@ -45,6 +40,11 @@ class MeetingRoom extends Component {
     const {meetingId, user} = this.props.route.params;
     const {mute, video} = this.state;
     this.getMedia(meetingId, user, mute, video);
+    BackHandler.addEventListener("hardwareBackPress", this.backAction);
+  }
+
+  componentWillUnmount() {
+    BackHandler.removeEventListener("hardwareBackPress", this.backAction);
   }
 
   switchCam = () => {
@@ -54,9 +54,17 @@ class MeetingRoom extends Component {
     this.setState({stream: this.state.stream});
   };
 
-  componentWillUnmount() {
-    // this.setStream('');
-  }
+  backAction = () => {
+    Alert.alert("Are you sure","you want to End the Meeting ?", [
+      {
+        text: "Cancel",
+        onPress: () => null,
+        style: "cancel"
+      },
+      { text: "YES", onPress: () => this.endMeeting() }
+    ]);
+    return true;
+  };
 
   getMedia = (meetingId, user) => {
     let isFront = true;
@@ -105,19 +113,33 @@ class MeetingRoom extends Component {
   }
 
   muteAudio = () => {
+    const {meetingId, user} = this.props.route.params;
     const {mute} = this.state;
     this.state.stream._tracks[0].enabled = !mute;
     this.setState({mute: !mute, stream: this.state.stream});
-    this.props.muteAudio(this.state.stream);
+    this.props.muteAudio(this.state.stream,user);
   };
 
   muteCamera = () => {
-    //disable video
+    const {meetingId, user} = this.props.route.params;
     const {video} = this.state;
     this.state.stream._tracks[1].enabled = !video;
     this.setState({video: !video, stream: this.state.stream});
-    this.props.muteVideo(this.state.stream);
+    this.props.muteVideo(this.state.stream,user);
   };
+
+  endMeeting = async() => {
+    const {stream} = this.state;
+    const {meetingId, user} = this.props.route.params;
+    let postData = {
+      meetingId:meetingId,
+      user:user,
+    }
+    this.props.endMeeting(meetingId,stream,user);
+    // let api = await users.endMeeting(postData);
+    this.props.navigation.navigate('MeetingList');
+    console.log(api);
+  }
 
   render() {
     const {
@@ -130,7 +152,7 @@ class MeetingRoom extends Component {
     } = this.props;
 
     const {mute, video, stream} = this.state;
-    // console.log(myStream, streams, remoteStreams)
+    console.log(myStream, streams, remoteStreams)
     return (
       <Block style={styles.parent}>
         <Block style={styles.child1}>
@@ -141,15 +163,15 @@ class MeetingRoom extends Component {
             style={styles.iconStyle}
             onPress={this.switchCam}
           />
-          <Button style={styles.endBtn} onPress={() => navigation.goBack()}>
+          <Button style={styles.endBtn} onPress={this.backAction}>
             <Text style={styles.endText}>End</Text>
           </Button>
         </Block>
         <Block style={styles.child2}>
           {myStream ? (
-            myStream._tracks[1].enabled == true?(
+            myStream.stream._tracks[1].enabled == true?(
             <>
-              <RTCView streamURL={myStream.toURL()} style={styles.mainRtc} />
+              <RTCView streamURL={myStream.stream.toURL()} style={styles.mainRtc} />
             </>
             ):null
           ) : null}
@@ -158,13 +180,13 @@ class MeetingRoom extends Component {
           <ScrollView horizontal={true}>
             {streams.length > 0 ? (
               <>
-                {streams.map((stream, index) => {
+                {streams.map((item, index) => {
                   return (
                     <Block style={styles.scrollChilds} key={index}>
                       {
-                        stream._tracks[1].enabled == true?(
+                        item.stream._tracks[1].enabled == true?(
                           <RTCView
-                          streamURL={stream.toURL()}
+                          streamURL={item.stream.toURL()}
                           style={styles.childRtc}
                         />
                         ):null
@@ -176,13 +198,13 @@ class MeetingRoom extends Component {
             ) : null}
             {remoteStreams.length > 0 ? (
               <>
-                {remoteStreams.map((stream, index) => {
+                {remoteStreams.map((item, index) => {
                   return (
                     <Block style={styles.scrollChilds} key={index}>
                       {
-                        stream._tracks[1].enabled == true?(
+                        item.stream._tracks[1].enabled == true?(
                           <RTCView
-                          streamURL={stream.toURL()}
+                          streamURL={item.stream.toURL()}
                           style={styles.childRtc}
                         />
                         ):null
@@ -308,4 +330,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default connect(mapStateToProps, {joinRoom,muteAudio,muteVideo})(MeetingRoom);
+export default connect(mapStateToProps, {joinRoom,muteAudio,muteVideo,endMeeting})(MeetingRoom);

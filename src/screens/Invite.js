@@ -14,12 +14,16 @@ import {Block} from 'galio-framework';
 import {Theme, Images} from '../constants/index';
 import {Input, Button} from '../components';
 import {users} from '../axios';
+import {getUserName} from '../helper/userData';
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 const Invite = (props) => {
   const [meetingId, setMeetingId] = useState(null);
   const [value, setValue] = useState('');
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [date, setDate] = useState('');
   const {navigation, user} = props;
 
   useEffect(()=>{
@@ -57,8 +61,9 @@ const Invite = (props) => {
     setLoading(true);
     let postData = {
       meetingId: meetingId,
-      userName: user._user.displayName,
+      userName: getUserName(user),
       mailTo: items,
+      date: date,
     }
     console.log(postData);
     let api = await users.sendInvitationEmail(postData);
@@ -88,9 +93,33 @@ const Invite = (props) => {
     setItems(item);
   }
 
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+    sendInvitation()
+  };
+
+  const handleConfirm = (date) => {
+    // console.warn("A date has been picked: ", date);
+    console.log(date);
+    setDate(date);
+    hideDatePicker();
+  };
+
+  const openDatePicker = () =>{
+    setDatePickerVisibility(true);
+  }
+
   return (
     <SafeAreaView safe={true} style={styles.container}>
       <ScrollView>
+        <Block>
+        <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="datetime"
+        onConfirm={handleConfirm}
+        onCancel={hideDatePicker}
+      />
+        </Block>
         <Block>
           <Text style={styles.inviteTxt}>INVITE PARTICIPANTS</Text>
           <Text style={styles.content}>
@@ -134,6 +163,11 @@ const Invite = (props) => {
               </Block>
             </ScrollView>
           </Block>
+          {
+            date?(<Block>
+            <Text>Date:{date.toString()}</Text>
+          </Block>):null
+          }
         </Block>
         <Block style={styles.child4}>
           <Image style={styles.emailIcon} source={Images.Email} />
@@ -141,7 +175,7 @@ const Invite = (props) => {
         <Block style={styles.child5}>
           <Button
             style={styles.sendBtn}
-            onPress={sendInvitation}
+            onPress={openDatePicker}
             loading={loading}
           >
             <Text style={styles.sendTxt}>Send</Text>

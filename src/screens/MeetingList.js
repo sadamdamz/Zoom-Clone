@@ -91,6 +91,10 @@ const MeetingList = (props) => {
       .then(() => console.log('User signed out!'));
   };
 
+  const accRedirect = () => {
+    props.navigation.navigate('Profile');
+  }
+
   const renderScene = SceneMap({
     upcoming: UpcomingList,
     past: PastList,
@@ -130,8 +134,8 @@ const MeetingList = (props) => {
                 resizeMode: 'contain',
               }}
               destructiveIndex={1}
-              options={['Logout']}
-              actions={[signOut]}
+              options={['Account','Logout']}
+              actions={[accRedirect,signOut]}
             />
             {/* <Text>hello</Text> */}
           </Block>

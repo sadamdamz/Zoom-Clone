@@ -3,6 +3,7 @@ import MeetingList from '../screens/MeetingList';
 import Invite from '../screens/Invite';
 import JoinMeeting from '../screens/JoinMeeting';
 import MeetingRoom from '../screens/MeetingRoom';
+import Profile from '../screens/Profile';
 import {createStackNavigator} from '@react-navigation/stack';
 
 const MainStack = createStackNavigator();
@@ -26,9 +27,13 @@ class Main extends Component {
         <MainStack.Screen name="JoinMeeting">
           {(props) => <JoinMeeting {...props} user={user} />}
         </MainStack.Screen>
+        <MainStack.Screen name="Profile" options={{title:'Profile'}}>
+          {(props) => <Profile {...props} user={user} />}
+        </MainStack.Screen>
         <MainStack.Screen name="MeetingRoom" options={{headerShown: false}}>
           {(props) => <MeetingRoom {...props} user={user} />}
         </MainStack.Screen>
+        
       </MainStack.Navigator>
     );
   }
