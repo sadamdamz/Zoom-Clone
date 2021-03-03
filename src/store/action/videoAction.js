@@ -1,8 +1,9 @@
 import { JOIN_CHAT, ADD_STREAM, MY_STREAM, ADD_REMOTE_STREAM, REMOVE_STREAM } from './types';
 import IO from 'socket.io-client';
 import Peer from 'react-native-peerjs'
+import { endPoints } from '../../constants/endpoints';
 
-export const API_URL = `http://192.168.43.20:5000`; //local ip
+export const API_URL = endPoints.API_URL //local ip
 
 // export const API_URL = 'http://192.168.0.103:5000'; office ip
 
@@ -11,7 +12,7 @@ export const API_URL = `http://192.168.43.20:5000`; //local ip
 
 const peer = () => {
   let peerServer =  new Peer(undefined, {
-    host: '139.59.34.203',
+    host: endPoints.API_ENDPOINT,
     secure: false,
     port: 5000,
     path: '/mypeer'
@@ -28,10 +29,10 @@ socket.on('connection',()=>{
   console.log('client connected');
 })
 
+let peerServer = null;
 export const joinRoom = (stream, meetingId, user) => async(dispatch) => {
-  const peerServer = peer();
   console.log(peerServer);
-  
+  peerServer = peer()
   const roomId = meetingId;
 
   dispatch({type:MY_STREAM, payload:{stream:stream,id:socket.id,user:user}});
@@ -73,10 +74,11 @@ export const muteVideo = (stream,user) => async(dispatch) => {
 
 export const endMeeting = (roomId,stream,user) => async(dispatch) => {
   
-  const peerServer = peer();
+  // const peerServer = peer();
   console.log(peerServer);
   let socketId = socket.id
 
+  peerServer.destroy();
   peerServer.on('open',(peerID)=>{
     console.log('second peerID =', peerID)
     socket.emit('leave-room',{roomId,socketId,user,peerID});

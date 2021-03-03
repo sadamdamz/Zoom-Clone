@@ -1,7 +1,8 @@
 // import {API_URL} from "@env";
 import axios from 'react-native-axios';
+import { endPoints } from '../constants/endpoints';
 
-const API_URL = 'http://192.168.43.20:5000';
+const API_URL = endPoints.API_URL;
 
 // const API_URL = 'http://192.168.0.103:5000';
 
