@@ -113,6 +113,7 @@ const invites = (props) => {
     console.log(meetingId);
     setSpinner(true);
     let field = fields;
+    field['momentDate'] = date;
     field['date'] = moment(date).format('MMMM Do YYYY');
     field['time'] = moment(time).format('LT');
     field['userName'] = getUserName(user);
