@@ -187,7 +187,8 @@ const invites = (props) => {
               style={styles.input}
             />
           </Block>
-          <Block style={styles.addParticipants}>
+          <Block style={{...styles.addParticipants,...styles.child}}>
+            <Block>
             <TextInput
               placeholder="Add Participants"
               onChangeText={(e) => setValue(e)}
@@ -195,6 +196,10 @@ const invites = (props) => {
               style={{...styles.input, ...styles.addInput}}
               value={value}
             />
+            </Block>
+            <Block>
+            <Button style={styles.addBtn} onPress={()=>handleSubmit()}><Text style={styles.addBtnTxt}>Add</Text></Button>
+            </Block>
           </Block>
           {items.length > 0 ? (
             <Block style={styles.selectedBox}>
@@ -238,6 +243,15 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   spinnerTextStyle: {
+    color: Theme.COLORS.WHITE,
+  },
+  addBtn: {
+    width:40,
+    height:30,
+    padding:0,
+    backgroundColor: Theme.COLORS.BLUE,
+  },
+  addBtnTxt: {
     color: Theme.COLORS.WHITE,
   },
   addInput: {
@@ -315,6 +329,8 @@ const styles = StyleSheet.create({
     fontSize: 2,
   },
   addParticipants: {
+    // flex:1,
+    flexDirection:'column',
     marginTop: 30,
     marginBottom: 10,
   },

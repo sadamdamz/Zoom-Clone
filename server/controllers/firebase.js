@@ -146,7 +146,7 @@ const scheduleMeeting = async(req, res) => {
       .then((snapshot) => {
         let val = snapshot.val();
         console.log(snapshot.val());
-        db.ref('users/' + uid + '/meetings/' + val.meetingId).set({...postData,meetingId:val.meetingId,url:`htt://wedgrab.com/meetingroom?${val.meetingId}`});
+        db.ref('users/' + uid + '/meetings/' + val.meetingId).set({...postData,meetingId:val.meetingId,url:`http://wedgrab.com/meetingroom?${val.meetingId}`});
         if(mailTo.length>0){
           let data = template.sendInvitation({...postData,meetingId:val.meetingId})
           console.log(data);

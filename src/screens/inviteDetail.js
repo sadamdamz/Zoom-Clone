@@ -43,7 +43,7 @@ const inviteDetail = (props) => {
   };
 
   const copyToClipboard = () => {
-    Clipboard.setString(`Topic: ${data.topic} MeetingId : ${data.meetingId} Date : ${data.date} Time : ${data.time}, duration : ${data.duration}  Url : ${data.url}`,);
+    Clipboard.setString(`Topic: ${data.topic} MeetingId : ${data.meetingId} Date : ${data.date} Time : ${data.time}, Url : http://wedgrab.com/meetingroom?${data['meetingId']}`,);
   };
 
   return (
@@ -79,7 +79,7 @@ const inviteDetail = (props) => {
               </Block>
               <Block style={styles.child}>
                 <Text style={styles.txt}>Invite Link</Text>
-                <Text style={styles.detailTxt}>{data['url']}</Text>
+                <Text style={{...styles.detailTxt, ...styles.linkTxt}}>{`http://wedgrab.com/meetingroom?${data['meetingId']}`}</Text>
               </Block>
             </Block>
           </Block>
@@ -150,8 +150,11 @@ const styles = StyleSheet.create({
   detailTxt: {
     width: 200,
     // borderWidth: 1,
-    height: 50,
+    height: 40,
     padding: 7,
+  },
+  linkTxt: {
+    height: 60
   },
   headTxt: {
     fontWeight: '700',

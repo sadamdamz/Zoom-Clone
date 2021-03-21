@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {Block} from 'galio-framework';
-import {Theme, Images} from '../constants/index';
+import {Theme, Images, Constant} from '../constants/index';
 import {Card, Button} from '../components';
 import UserAvatar from 'react-native-user-avatar';
 import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
@@ -27,19 +27,25 @@ const UpcomingList = (props) => {
       <ScrollView style={styles.bgColor}>
         <Block style={styles.bgWhite}>
           {Object.keys(meetingList).map((item, index) => {
+            let timeDuration = Constant.Duration.filter((i, index) => {
+              return i.value === meetingList[item].duration;
+            });
             let currentDate = moment(new Date()).format('MMMM Do YYYY');
             let currentTime = moment(new Date()).format('LT');
             let d1 = moment(currentDate, 'MMMM Do YYYY');
             let d2 = moment(meetingList[item].date, 'MMMM Do YYYY');
             let d = d2.diff(d1);
             let t1 = moment(currentTime, 'LT');
-            let t2 = moment(meetingList[item].time, 'LT');
+            let t2 = moment(meetingList[item].time, 'LT').add(
+              timeDuration[0].min,
+              'minutes',
+            );
             let t = t2.diff(t1);
             if (d == 0 && t <= 0) {
               return null;
             }
-            if(d<0){
-              return null
+            if (d < 0) {
+              return null;
             }
             return (
               <TouchableOpacity
@@ -79,19 +85,25 @@ const PastList = (props) => {
       <ScrollView style={styles.bgColor}>
         <Block style={styles.bgWhite}>
           {Object.keys(meetingList).map((item, index) => {
+            let timeDuration = Constant.Duration.filter((i, index) => {
+              return i.value === meetingList[item].duration;
+            });
             let currentDate = moment(new Date()).format('MMMM Do YYYY');
             let currentTime = moment(new Date()).format('LT');
             let d1 = moment(currentDate, 'MMMM Do YYYY');
             let d2 = moment(meetingList[item].date, 'MMMM Do YYYY');
             let d = d2.diff(d1);
             let t1 = moment(currentTime, 'LT');
-            let t2 = moment(meetingList[item].time, 'LT');
+            let t2 = moment(meetingList[item].time, 'LT').add(
+              timeDuration[0].min,
+              'minutes',
+            );
             let t = t2.diff(t1);
-            if(d>0){
-              return null
+            if (d > 0) {
+              return null;
             }
-            if(d==0 && t>0){
-              return null
+            if (d == 0 && t > 0) {
+              return null;
             }
             return (
               <TouchableOpacity
