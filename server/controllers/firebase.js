@@ -1,5 +1,7 @@
 const db = require('../config/firebase');
 const {getMeetingId} = require('../helpers/meeting');
+const template = require('./email');
+
 
 const getUser = async (req, res) => {
   res.send('Hello World');
@@ -130,7 +132,7 @@ const endMeeting = async (req, res) => {
 };
 
 const scheduleMeeting = async(req, res) => {
-  const {uid} = req.body;
+  const {uid, mailTo} = req.body;
   let postData = {
     ...req.body,
     host: false,
@@ -144,11 +146,27 @@ const scheduleMeeting = async(req, res) => {
       .then((snapshot) => {
         let val = snapshot.val();
         console.log(snapshot.val());
-        db.ref('users/' + uid + '/meetings/' + val.meetingId).set({...postData,meetingId:val.meetingId});
+        db.ref('users/' + uid + '/meetings/' + val.meetingId).set({...postData,meetingId:val.meetingId,url:`htt://wedgrab.com/meetingroom?${val.meetingId}`});
+        if(mailTo.length>0){
+          let data = template.sendInvitation({...postData,meetingId:val.meetingId})
+          console.log(data);
+        }
         res.send(postData);
       });
   } catch (error) {
     res.send({status: 501, error: error});
+  }
+}
+
+const getInviteDetail = async(req, res) => {
+  const {uid,meetingId} = req.body;
+  try {
+    await db.ref('users/'+uid+'/meetings/'+meetingId).once('value').then((snapshot)=>{
+      let val = snapshot.val();
+      res.send({status:200,data:val});
+    });
+  } catch (error) {
+    console.log(error);
   }
 }
 
@@ -160,5 +178,6 @@ module.exports = {
   endMeeting,
   getMeetingDetails,
   scheduleMeeting,
-  getMeetingList
+  getMeetingList,
+  getInviteDetail
 };

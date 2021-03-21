@@ -10,5 +10,6 @@ router.post('/hostMeetingController', firebase.hostMeetingController);
 router.get('/getMeetingDetails/:meetingId', firebase.getMeetingDetails);
 router.post('/endMeeting', firebase.endMeeting);
 router.post('/scheduleMeeting', firebase.scheduleMeeting);
+router.post('/getInviteDetails', firebase.getInviteDetail);
 
 module.exports = router;

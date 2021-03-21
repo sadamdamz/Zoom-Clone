@@ -30,6 +30,16 @@ const getMeetingId = async(postData) => {
   }
 }
 
+const getInviteDetails = async(postData) => {
+  try {
+    let api = await axios.post(`${API_URL}/api/v1/getInviteDetails`,postData);
+    let response = await api.data;
+    return response
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 const scheduleMeeting = async(postData) => {
   try {
     let api = await axios.post(`${API_URL}/api/v1/scheduleMeeting`,postData);
@@ -98,5 +108,6 @@ export default {
   sendInvitationEmail,
   endMeeting,
   scheduleMeeting,
-  getMeetingList
+  getMeetingList,
+  getInviteDetails
 }

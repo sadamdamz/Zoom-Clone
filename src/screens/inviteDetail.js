@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Text,
   StyleSheet,
@@ -11,61 +11,97 @@ import {
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import {Block} from 'galio-framework';
-import {Theme, Images} from '../constants/index';
+import {Theme, Images, Constant} from '../constants/index';
 import {Input, Button} from '../components';
 import {users} from '../axios';
-import {getUserName} from '../helper/userData';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import * as AddCalendarEvent from 'react-native-add-calendar-event';
-import moment from 'moment';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 const inviteDetail = (props) => {
+  const [params, setParams] = useState(props.route.params);
+  const [spinner, setSpinner] = useState(true);
+  const [duration, setDuration] = useState('');
+  const [data, setData] = useState({});
+
+  const {navigation, user} = props;
+
+  useEffect(() => {
+    getInviteData();
+  }, []);
+
+  const getInviteData = async () => {
+    let postData = {
+      ...params,
+    };
+    let api = await users.getInviteDetails(postData);
+    let timeDuration = Constant.Duration.filter((item, index) => {
+      return item.value == api.data.duration;
+    });
+    setDuration(timeDuration[0].label);
+    setData(api.data);
+    setSpinner(false);
+    console.log(api);
+  };
+
+  const copyToClipboard = () => {
+    Clipboard.setString(`Topic: ${data.topic} MeetingId : ${data.meetingId} Date : ${data.date} Time : ${data.time}, duration : ${data.duration}  Url : ${data.url}`,);
+  };
+
   return (
     <SafeAreaView safe={true} style={styles.container}>
-      <Block style={styles.parent}>
-        <Block style={styles.children1}>
-          {/* <Block>
-            <Text style={styles.headTxt}>MEETING</Text>
-          </Block> */}
-          <Block style={styles.child}>
-            <Text style={styles.txt}>Topic</Text>
-            <Text style={styles.detailTxt}>Video Call Meeting</Text>
+      <Spinner
+        visible={spinner}
+        textContent={'Loading...'}
+        textStyle={styles.spinnerTextStyle}
+      />
+      {spinner ? null : (
+        <>
+          <Block style={styles.parent}>
+            <Block style={styles.children1}>
+              <Block style={styles.child}>
+                <Text style={styles.txt}>Topic</Text>
+                <Text style={styles.detailTxt}>{data['topic']}</Text>
+              </Block>
+              <Block style={styles.child}>
+                <Text style={styles.txt}>Date</Text>
+                <Text style={styles.detailTxt}>{data['date']}</Text>
+              </Block>
+              <Block style={styles.child}>
+                <Text style={styles.txt}>Time</Text>
+                <Text style={styles.detailTxt}>{data['time']}</Text>
+              </Block>
+              <Block style={styles.child}>
+                <Text style={styles.txt}>Duration</Text>
+                <Text style={styles.detailTxt}>{duration}</Text>
+              </Block>
+              <Block style={styles.child}>
+                <Text style={styles.txt}>MeetingId</Text>
+                <Text style={styles.detailTxt}>{data['meetingId']}</Text>
+              </Block>
+              <Block style={styles.child}>
+                <Text style={styles.txt}>Invite Link</Text>
+                <Text style={styles.detailTxt}>{data['url']}</Text>
+              </Block>
+            </Block>
           </Block>
-          <Block style={styles.child}>
-            <Text style={styles.txt}>Date</Text>
-            <Text style={styles.detailTxt}>15/03/2021</Text>
-          </Block>
-          <Block style={styles.child}>
-            <Text style={styles.txt}>Time</Text>
-            <Text style={styles.detailTxt}>1:30 pm</Text>
-          </Block>
-          <Block style={styles.child}>
-            <Text style={styles.txt}>Time Zone</Text>
-            <Text style={styles.detailTxt}>(GMT+5:30) India</Text>
-          </Block>
-          <Block style={styles.child}>
-            <Text style={styles.txt}>Duration</Text>
-            <Text style={styles.detailTxt}>30 min</Text>
-          </Block>
-          <Block style={styles.child}>
-            <Text style={styles.txt}>Passcode</Text>
-            <Text style={styles.detailTxt}>xksji</Text>
-          </Block>
-          <Block style={styles.child}>
-            <Text style={styles.txt}>MeetingId</Text>
-            <Text style={styles.detailTxt}>7689045</Text>
-          </Block>
-          <Block style={styles.child}>
-            <Text style={styles.txt}>Invite Link</Text>
-            <Text style={styles.detailTxt}>https://zoom.clone.com?7689045</Text>
-          </Block>
-        </Block>
-      </Block>
-      <Block style={styles.btnContainer}>
-        <Button style={styles.sendBtn}>
-          <Text style={styles.sendTxt}>Start Meeting</Text>
-        </Button>
-      </Block>
+          {
+            params.show?(
+              <Block style={styles.btnContainer}>
+              <Button style={styles.sendBtn} onPress={()=>copyToClipboard()}>
+                <Text style={styles.sendTxt}>Copy Invitation</Text>
+              </Button>
+              <Button
+                style={styles.sendBtn}
+                onPress={()=>navigation.navigate('MeetingRoom', {
+                  meetingId: data['meetingId'],
+                  user: user._user,
+                })}>
+                <Text style={styles.sendTxt}>Start Meeting</Text>
+              </Button>
+            </Block>
+            ):null
+          }
+        </>
+      )}
     </SafeAreaView>
   );
 };
@@ -76,6 +112,9 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: Theme.COLORS.WHITE,
     height: '100%',
+  },
+  spinnerTextStyle: {
+    color: Theme.COLORS.WHITE,
   },
   sendBtn: {
     backgroundColor: Theme.COLORS.BLUE,
@@ -111,7 +150,7 @@ const styles = StyleSheet.create({
   detailTxt: {
     width: 200,
     // borderWidth: 1,
-    height: 30,
+    height: 50,
     padding: 7,
   },
   headTxt: {

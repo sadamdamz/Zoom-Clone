@@ -1,5 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import {Text, StyleSheet, ScrollView, Image, Dimensions, TouchableOpacity} from 'react-native';
+import {
+  Text,
+  StyleSheet,
+  ScrollView,
+  Image,
+  Dimensions,
+  TouchableOpacity,
+} from 'react-native';
 import {Block} from 'galio-framework';
 import {Theme, Images} from '../constants/index';
 import {Card, Button} from '../components';
@@ -9,68 +16,111 @@ import OptionsMenu from 'react-native-options-menu';
 import auth from '@react-native-firebase/auth';
 import {users} from '../axios';
 import Spinner from 'react-native-loading-spinner-overlay';
+import moment from 'moment';
 
 const initialLayout = {width: Dimensions.get('window').width};
 
 const UpcomingList = (props) => {
   const {meetingList, navigation, user} = props;
-  if(meetingList && Object.keys(meetingList).length>0){
-  return (
-    <ScrollView style={styles.bgColor}>
-      <Block style={styles.bgWhite}>
-        {Object.keys(meetingList).map((item, index) => {
-          return (
-            <TouchableOpacity onPress={()=>navigation.navigate('InviteDetail',{meetingId: meetingList[item].meetingId,
-              user: user._user.uid, show:true})} key={index}>
-            <Card.MeetingListCard
-              img={
-                'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'
-              }
-              subject={meetingList[item].topic}
-              date={meetingList[item].date}
-              time={meetingList[item].time}
-              duration={meetingList[item].duration}
-              {...props}
-            />
-            </TouchableOpacity>
-          );
-        })}
-      </Block>
-    </ScrollView>
-  );
-}else{
-  return null
-}
+  if (meetingList && Object.keys(meetingList).length > 0) {
+    return (
+      <ScrollView style={styles.bgColor}>
+        <Block style={styles.bgWhite}>
+          {Object.keys(meetingList).map((item, index) => {
+            let currentDate = moment(new Date()).format('MMMM Do YYYY');
+            let currentTime = moment(new Date()).format('LT');
+            let d1 = moment(currentDate, 'MMMM Do YYYY');
+            let d2 = moment(meetingList[item].date, 'MMMM Do YYYY');
+            let d = d2.diff(d1);
+            let t1 = moment(currentTime, 'LT');
+            let t2 = moment(meetingList[item].time, 'LT');
+            let t = t2.diff(t1);
+            if (d == 0 && t <= 0) {
+              return null;
+            }
+            if(d<0){
+              return null
+            }
+            return (
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate('InviteDetail', {
+                    meetingId: meetingList[item].meetingId,
+                    uid: user._user.uid,
+                    show: true,
+                  })
+                }
+                key={index}>
+                <Card.MeetingListCard
+                  img={
+                    'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'
+                  }
+                  subject={meetingList[item].topic}
+                  date={meetingList[item].date}
+                  time={meetingList[item].time}
+                  duration={meetingList[item].duration}
+                  {...props}
+                />
+              </TouchableOpacity>
+            );
+          })}
+        </Block>
+      </ScrollView>
+    );
+  } else {
+    return null;
+  }
 };
 
 const PastList = (props) => {
   const {meetingList, navigation, user} = props;
-  if(meetingList && Object.keys(meetingList).length>0){
-  return (
-    <ScrollView style={styles.bgColor}>
-      <Block style={styles.bgWhite}>
-        {Object.keys(meetingList).map((item, index) => {
-          return (
-            <TouchableOpacity onPress={()=>navigation.navigate('InviteDetail',{meetingId: meetingList[item].meetingId,
-              user: user._user.uid, show:true})} key={index}>
-            <Card.MeetingListCard
-              img={
-                'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'
-              }
-              subject={meetingList[item].topic}
-              date={meetingList[item].date}
-              time={meetingList[item].time}
-              duration={meetingList[item].duration}
-              {...props}
-            />
+  if (meetingList && Object.keys(meetingList).length > 0) {
+    return (
+      <ScrollView style={styles.bgColor}>
+        <Block style={styles.bgWhite}>
+          {Object.keys(meetingList).map((item, index) => {
+            let currentDate = moment(new Date()).format('MMMM Do YYYY');
+            let currentTime = moment(new Date()).format('LT');
+            let d1 = moment(currentDate, 'MMMM Do YYYY');
+            let d2 = moment(meetingList[item].date, 'MMMM Do YYYY');
+            let d = d2.diff(d1);
+            let t1 = moment(currentTime, 'LT');
+            let t2 = moment(meetingList[item].time, 'LT');
+            let t = t2.diff(t1);
+            if(d>0){
+              return null
+            }
+            if(d==0 && t>0){
+              return null
+            }
+            return (
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate('InviteDetail', {
+                    meetingId: meetingList[item].meetingId,
+                    uid: user._user.uid,
+                    show: false,
+                  })
+                }
+                key={index}>
+                <Card.MeetingListCard
+                  img={
+                    'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'
+                  }
+                  subject={meetingList[item].topic}
+                  date={meetingList[item].date}
+                  time={meetingList[item].time}
+                  duration={meetingList[item].duration}
+                  {...props}
+                />
               </TouchableOpacity>
-          );
-        })}
-      </Block>
-    </ScrollView>
-  );
-  }else{
-    return null
+            );
+          })}
+        </Block>
+      </ScrollView>
+    );
+  } else {
+    return null;
   }
 };
 
@@ -129,7 +179,6 @@ const MeetingList = (props) => {
     setMeetingList(data.meetings);
     setData(data);
     setSpinner(false);
-    console.log(data);
   };
 
   const signOut = async () => {
@@ -143,16 +192,12 @@ const MeetingList = (props) => {
   };
 
   const upcome = () => {
-    return (
-      <UpcomingList meetingList={meetingList} {...props}/>
-    )
-  }
+    return <UpcomingList meetingList={meetingList} {...props} />;
+  };
 
   const past = () => {
-    return(
-      <PastList meetingList={meetingList} {...props}/>
-    )
-  }
+    return <PastList meetingList={meetingList} {...props} />;
+  };
 
   const renderScene = SceneMap({
     upcoming: upcome,
