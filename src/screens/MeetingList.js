@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Text, StyleSheet, ScrollView, Image, Dimensions} from 'react-native';
+import {Text, StyleSheet, ScrollView, Image, Dimensions, TouchableOpacity} from 'react-native';
 import {Block} from 'galio-framework';
 import {Theme, Images} from '../constants/index';
 import {Card, Button} from '../components';
@@ -7,83 +7,130 @@ import UserAvatar from 'react-native-user-avatar';
 import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
 import OptionsMenu from 'react-native-options-menu';
 import auth from '@react-native-firebase/auth';
+import {users} from '../axios';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 const initialLayout = {width: Dimensions.get('window').width};
 
-const UpcomingList = () => {
+const UpcomingList = (props) => {
+  const {meetingList, navigation, user} = props;
+  if(meetingList && Object.keys(meetingList).length>0){
   return (
     <ScrollView style={styles.bgColor}>
       <Block style={styles.bgWhite}>
-        {[1, 2, 3, 4, 5, 6].map((item, index) => {
+        {Object.keys(meetingList).map((item, index) => {
           return (
+            <TouchableOpacity onPress={()=>navigation.navigate('InviteDetail',{meetingId: meetingList[item].meetingId,
+              user: user._user.uid, show:true})} key={index}>
             <Card.MeetingListCard
               img={
                 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'
               }
-              subject={'Maths Volume 2'}
-              date={'11/7/2021'}
-              time={'2:30 pm'}
-              members={25}
-              key={index}
+              subject={meetingList[item].topic}
+              date={meetingList[item].date}
+              time={meetingList[item].time}
+              duration={meetingList[item].duration}
+              {...props}
             />
+            </TouchableOpacity>
           );
         })}
       </Block>
     </ScrollView>
   );
+}else{
+  return null
+}
 };
 
-const PastList = () => {
+const PastList = (props) => {
+  const {meetingList, navigation, user} = props;
+  if(meetingList && Object.keys(meetingList).length>0){
   return (
     <ScrollView style={styles.bgColor}>
       <Block style={styles.bgWhite}>
-        {[1, 2, 3, 4, 5, 6].map((item, index) => {
+        {Object.keys(meetingList).map((item, index) => {
           return (
+            <TouchableOpacity onPress={()=>navigation.navigate('InviteDetail',{meetingId: meetingList[item].meetingId,
+              user: user._user.uid, show:true})} key={index}>
             <Card.MeetingListCard
               img={
                 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'
               }
-              subject={'Maths Volume 2'}
-              date={'11/7/2021'}
-              time={'2:30 pm'}
-              members={25}
-              key={index}
+              subject={meetingList[item].topic}
+              date={meetingList[item].date}
+              time={meetingList[item].time}
+              duration={meetingList[item].duration}
+              {...props}
             />
+              </TouchableOpacity>
           );
         })}
       </Block>
     </ScrollView>
   );
+  }else{
+    return null
+  }
 };
 
 const initialImgState = (props) => {
-  let img = props.user._user.photoURL?props.user._user.photoURL:'';
+  let img = props.user._user.photoURL ? props.user._user.photoURL : '';
   return img;
-}
+};
 
 const initialNameState = (props) => {
   let name;
-  const { user } = props;
-  if(user._user.phoneNumber==null && user._user.displayName==null){
-    name=user._user.email;
-  }else if(user._user.phoneNumber==null){
-    name=user.displayName
-  }else{
-    name = user._user.phoneNumber
+  const {user} = props;
+  if (user._user.phoneNumber == null && user._user.displayName == null) {
+    name = user._user.email;
+  } else if (user._user.phoneNumber == null) {
+    name = user.displayName;
+  } else {
+    name = user._user.phoneNumber;
   }
   return name;
-}
+};
 
 const MeetingList = (props) => {
+  const [spinner, setSpinner] = useState(true);
+  const [data, setData] = useState(null);
+  const [meetingList, setMeetingList] = useState([]);
   const [index, setIndex] = useState(0);
-  const [img, setImg] = useState(()=>initialImgState(props));
-  const [usrName, setUsrName] = useState(()=>initialNameState(props));
-   const [routes] = useState([
+  const [img, setImg] = useState(() => initialImgState(props));
+  const [usrName, setUsrName] = useState(() => initialNameState(props));
+  const [routes] = useState([
     {key: 'upcoming', title: 'UpcomingList'},
     {key: 'past', title: 'PastList'},
   ]);
 
   const {user, navigation} = props;
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      getMeetingList();
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    getMeetingList();
+  }, []);
+
+  const getMeetingList = async () => {
+    setSpinner(true);
+    let postData = {
+      uid: user._user.uid,
+      name: usrName,
+      img: img,
+    };
+    let api = await users.getMeetingList(postData);
+    let data = await api.Data;
+    setMeetingList(data.meetings);
+    setData(data);
+    setSpinner(false);
+    console.log(data);
+  };
 
   const signOut = async () => {
     await auth()
@@ -93,11 +140,23 @@ const MeetingList = (props) => {
 
   const accRedirect = () => {
     props.navigation.navigate('Profile');
+  };
+
+  const upcome = () => {
+    return (
+      <UpcomingList meetingList={meetingList} {...props}/>
+    )
+  }
+
+  const past = () => {
+    return(
+      <PastList meetingList={meetingList} {...props}/>
+    )
   }
 
   const renderScene = SceneMap({
-    upcoming: UpcomingList,
-    past: PastList,
+    upcoming: upcome,
+    past: past,
   });
 
   const renderTabBar = (props) => (
@@ -110,6 +169,11 @@ const MeetingList = (props) => {
 
   return (
     <>
+      <Spinner
+        visible={spinner}
+        textContent={'Loading...'}
+        textStyle={styles.spinnerTextStyle}
+      />
       <Block safe={true} style={styles.bgWhite}>
         <Block row style={styles.container}>
           <Block left={true} style={styles.child1}>
@@ -134,8 +198,8 @@ const MeetingList = (props) => {
                 resizeMode: 'contain',
               }}
               destructiveIndex={1}
-              options={['Account','Logout']}
-              actions={[accRedirect,signOut]}
+              options={['Account', 'Logout']}
+              actions={[accRedirect, signOut]}
             />
             {/* <Text>hello</Text> */}
           </Block>
@@ -155,8 +219,7 @@ const MeetingList = (props) => {
         <Block>
           <Button
             style={styles.signinBtn}
-            onPress={() => navigation.navigate('JoinMeeting')}
-            >
+            onPress={() => navigation.navigate('JoinMeeting')}>
             <Text style={styles.signinTxt}>Join a Meeting</Text>
           </Button>
         </Block>
@@ -178,6 +241,9 @@ const styles = StyleSheet.create({
   scene: {
     flex: 1,
   },
+  spinnerTextStyle: {
+    color: Theme.COLORS.WHITE,
+  },
   bgWhite: {
     backgroundColor: Theme.COLORS.WHITE,
   },
@@ -190,7 +256,7 @@ const styles = StyleSheet.create({
   },
   child1: {
     justifyContent: 'center',
-    marginLeft: 10
+    marginLeft: 10,
   },
   child2: {
     justifyContent: 'center',

@@ -15,10 +15,15 @@ import {getUserName} from '../helper/userData';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import * as AddCalendarEvent from 'react-native-add-calendar-event';
 import moment from 'moment';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 const invites = (props) => {
   const [meetingId, setMeetingId] = useState(null);
-  const [fields, setFields] = useState({duration: '1',topic:'Write Your Topic'});
+  const [spinner, setSpinner] = useState(true);
+  const [fields, setFields] = useState({
+    duration: '1',
+    topic: 'Conference Call',
+  });
   const [loading, setLoading] = useState(false);
   const [datePicker, setDatePicker] = useState(false);
   const [timePicker, setTimePicker] = useState(false);
@@ -30,18 +35,17 @@ const invites = (props) => {
   const nowUTC = moment.utc();
   const {navigation, user} = props;
 
-  useEffect(()=>{
-    getId()
-  },[])
+  useEffect(() => {
+    getId();
+  }, []);
 
   const getId = async () => {
     let postData = {
       uid: user._user.uid,
     };
     let api = await users.getMeetingId(postData);
-    console.log(api.meetingId);
     setMeetingId(api.meetingId);
-
+    setSpinner(false);
   };
 
   const addToCalendar = () => {
@@ -96,31 +100,37 @@ const invites = (props) => {
       setValue('');
       setItems([...items, value]);
     }
-    console.log(items);
   };
 
   const removeList = (key) => {
-    console.log(key, 'remove');
     let item = items.filter((value, index) => {
       return key !== value;
     });
     setItems(item);
   };
 
-  const handleScheduleMeet = async() => {
+  const handleScheduleMeet = async () => {
+    console.log(meetingId);
+    setSpinner(true);
     let field = fields;
-    field['meetingId'] = meetingId;
     field['date'] = moment(date).format('MMMM Do YYYY');
     field['time'] = moment(time).format('LT');
     field['userName'] = getUserName(user);
     field['mailTo'] = items;
-    field['uid'] = user._user.uid,
+    field['uid'] = user._user.uid;
     console.log(field);
     let api = await users.scheduleMeeting(field);
-  }
+    navigation.navigate('MeetingList');
+    setSpinner(false);
+  };
 
   return (
     <SafeAreaView safe={true} style={styles.container}>
+      <Spinner
+        visible={spinner}
+        textContent={'Loading...'}
+        textStyle={styles.spinnerTextStyle}
+      />
       <DateTimePickerModal
         isVisible={datePicker}
         mode="date"
@@ -140,7 +150,12 @@ const invites = (props) => {
           </Block>
           <Block style={styles.child}>
             <Text style={styles.txt}>Topic</Text>
-            <TextInput placeholder="topic" style={styles.input} value={fields.topic} onChangeText={(e) => setFields({...fields,topic:e})}/>
+            <TextInput
+              placeholder="topic"
+              style={styles.input}
+              value={fields.topic}
+              onChangeText={(e) => setFields({...fields, topic: e})}
+            />
           </Block>
           <Block style={styles.child}>
             <Text style={styles.txt}>Date</Text>
@@ -165,7 +180,8 @@ const invites = (props) => {
                 justifyContent: 'flex-start',
               }}
               dropDownStyle={{backgroundColor: '#fafafa'}}
-              onChangeItem={(item) => setFields({...fields,duration:item.value})
+              onChangeItem={(item) =>
+                setFields({...fields, duration: item.value})
               }
               style={styles.input}
             />
@@ -205,9 +221,7 @@ const invites = (props) => {
         <Button style={styles.sendBtn} onPress={() => addToCalendar()}>
           <Text style={styles.sendTxt}>Add Calender</Text>
         </Button>
-        <Button
-          style={styles.sendBtn}
-          onPress={() => handleScheduleMeet()}>
+        <Button style={styles.sendBtn} onPress={() => handleScheduleMeet()}>
           <Text style={styles.sendTxt}>Shedule Meeting</Text>
         </Button>
       </Block>
@@ -221,6 +235,9 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: Theme.COLORS.WHITE,
     height: '100%',
+  },
+  spinnerTextStyle: {
+    color: Theme.COLORS.WHITE,
   },
   addInput: {
     width: 300,

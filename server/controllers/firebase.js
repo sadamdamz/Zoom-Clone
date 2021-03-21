@@ -5,6 +5,28 @@ const getUser = async (req, res) => {
   res.send('Hello World');
 };
 
+const getMeetingList = async(req, res)=> {
+  const {uid} = req.body;
+  console.log(req.body);
+  try {
+    await db
+    .ref('users/' + uid)
+    .once('value')
+    .then((snapshot) => {
+      console.log(snapshot.val())
+      let val = snapshot.val();
+      if(snapshot.exists()){
+        res.send({status:200,Data:snapshot.val()});
+      }else{
+        db.ref('users/' + uid).set(req.body);
+        res.send({status:203,Data:[]});
+      }
+    });
+  } catch (error) {
+    res.send({status:501,error:error});
+  }
+}
+
 const meetingID = async (req, res) => {
   const {uid} = req.body;
   const meetingId = getMeetingId();
@@ -18,8 +40,16 @@ const meetingID = async (req, res) => {
       .ref('users/' + uid)
       .once('value')
       .then((snapshot) => {
-        db.ref('users/' + uid).set(postData);
-        res.send(postData);
+        let val = snapshot.val();
+        if(snapshot.exists()){
+          db.ref('users/' + uid).set({...val,meetingId:meetingId});
+          console.log(snapshot.val())
+          res.send(snapshot.val());
+        }else{
+          console.log(snapshot.val())
+          db.ref('users/' + uid).set(postData);
+          res.send(postData);
+        }
       });
   } catch (error) {
     res.send({status: 501, error: error});
@@ -100,19 +130,21 @@ const endMeeting = async (req, res) => {
 };
 
 const scheduleMeeting = async(req, res) => {
-  const {uid,meetingId} = req.body;
+  const {uid} = req.body;
   let postData = {
     ...req.body,
     host: false,
     active: true,
   }
-  console.log(postData,meetingId);
+  console.log(postData);
   try {
     await db
       .ref('users/' + uid)
       .once('value')
       .then((snapshot) => {
-        db.ref('users/' + uid + '/meetings/' + meetingId).set(postData);
+        let val = snapshot.val();
+        console.log(snapshot.val());
+        db.ref('users/' + uid + '/meetings/' + val.meetingId).set({...postData,meetingId:val.meetingId});
         res.send(postData);
       });
   } catch (error) {
@@ -127,5 +159,6 @@ module.exports = {
   joinRoom,
   endMeeting,
   getMeetingDetails,
-  scheduleMeeting
+  scheduleMeeting,
+  getMeetingList
 };

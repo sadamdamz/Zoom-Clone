@@ -3,10 +3,13 @@ import {Text, StyleSheet, SafeAreaView, ScrollView, Image} from 'react-native';
 import {Block} from 'galio-framework';
 import {Icon} from '../components';
 import UserAvatar from 'react-native-user-avatar';
-import { Theme } from '../constants';
+import { Theme, Constant } from '../constants';
 
 const MeetingListCard = (props) => {
-  const {img, subject, date, time, members} = props;
+  const {img, subject, date, time, duration, show, meetingId, user, navigation} = props;
+  let timeDuration = Constant.Duration.filter((item,index)=>{
+    return item.value == duration;
+  })
   return (
     <Block style={styles.container}>
       <Block style={styles.child1}>
@@ -17,10 +20,10 @@ const MeetingListCard = (props) => {
       />
       </Block>
       <Block style={styles.child2}>
-        <Text style={styles.subject}>{subject}</Text>
+        <Text style={styles.subject} >{subject}</Text>
         <Text style={styles.txt}>Date - {date}</Text>
         <Text style={styles.txt}>Time - {time}</Text>
-        <Text style={styles.txt}>Members - {members}</Text>
+        <Text style={styles.txt}>Duration - {timeDuration[0].label}</Text>
       </Block>
       <Block>
         {/* <Icon name="options-vertical" family="SimpleLineIcons" /> */}

@@ -9,6 +9,16 @@ const API_URL = Constant.endPoints.API_URL;
 // const API_URL = `http://139.59.34.203:5000`;
 
 
+const getMeetingList = async(postData) => {
+  try {
+    let api = await axios.post(`${API_URL}/api/v1/getMeetingList`,postData);
+    let response = await api.data;
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 const getMeetingId = async(postData) => {
   try {
     let api = await axios.post(`${API_URL}/api/v1/meetingroom`,postData);
@@ -87,5 +97,6 @@ export default {
   getMeetingDetailById,
   sendInvitationEmail,
   endMeeting,
-  scheduleMeeting
+  scheduleMeeting,
+  getMeetingList
 }
