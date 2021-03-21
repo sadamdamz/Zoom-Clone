@@ -99,6 +99,27 @@ const endMeeting = async (req, res) => {
   }
 };
 
+const scheduleMeeting = async(req, res) => {
+  const {uid,meetingId} = req.body;
+  let postData = {
+    ...req.body,
+    host: false,
+    active: true,
+  }
+  console.log(postData,meetingId);
+  try {
+    await db
+      .ref('users/' + uid)
+      .once('value')
+      .then((snapshot) => {
+        db.ref('users/' + uid + '/meetings/' + meetingId).set(postData);
+        res.send(postData);
+      });
+  } catch (error) {
+    res.send({status: 501, error: error});
+  }
+}
+
 module.exports = {
   getUser,
   meetingID,
@@ -106,4 +127,5 @@ module.exports = {
   joinRoom,
   endMeeting,
   getMeetingDetails,
+  scheduleMeeting
 };
