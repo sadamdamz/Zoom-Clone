@@ -1,5 +1,5 @@
 const endPoints = {
-    API_URL: "http://wedgrab.com",
+    API_URL: "https://wedgrab.com",
     API_ENDPOINT: "wedgrab.com",
 }
 
