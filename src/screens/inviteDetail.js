@@ -46,6 +46,21 @@ const inviteDetail = (props) => {
     Clipboard.setString(`Topic: ${data.topic} MeetingId : ${data.meetingId} Date : ${data.date} Time : ${data.time}, Url : https://wedgrab.com/meetingroom?${data['meetingId']}`,);
   };
 
+  const handleStartMeeting = async () => {
+    setSpinner(true);
+    let postData = {
+      meetingId: data.meetingId,
+      host: true,
+      user: user._user,
+    };
+    let api = await users.hostMeetingController(postData);
+    navigation.navigate('MeetingRoom', {
+      meetingId: data.meetingId,
+      user: user._user,
+    });
+    setSpinner(false);
+  };
+
   return (
     <SafeAreaView safe={true} style={styles.container}>
       <Spinner
@@ -91,10 +106,7 @@ const inviteDetail = (props) => {
               </Button>
               <Button
                 style={styles.sendBtn}
-                onPress={()=>navigation.navigate('MeetingRoom', {
-                  meetingId: data['meetingId'],
-                  user: user._user,
-                })}>
+                onPress={handleStartMeeting}>
                 <Text style={styles.sendTxt}>Start Meeting</Text>
               </Button>
             </Block>
