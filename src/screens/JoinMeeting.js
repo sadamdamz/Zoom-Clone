@@ -8,7 +8,11 @@ import {users} from '../axios';
 const JoinMeeting = (props) => {
   
   const [meetingId, setMeetingId] = useState(null);
-  const {navigation, user} = props;
+  const {navigation, user, route} = props;
+
+  useEffect(()=>{
+    setMeetingId(route.params.id);
+  },[])
 
   const handleChange = (value) => {
     setMeetingId(value);
@@ -34,6 +38,7 @@ const JoinMeeting = (props) => {
           <Text>Meeting ID</Text>
           <Input
             placeholder="Meeting ID"
+            value={meetingId}
             onChangeText={(e) => handleChange(e)}
           />
         </Block>

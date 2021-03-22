@@ -43,7 +43,7 @@ const inviteDetail = (props) => {
   };
 
   const copyToClipboard = () => {
-    Clipboard.setString(`Topic: ${data.topic} MeetingId : ${data.meetingId} Date : ${data.date} Time : ${data.time}, Url : https://wedgrab.com/meetingroom?${data['meetingId']}`,);
+    Clipboard.setString(`Topic: ${data.topic} MeetingId : ${data.meetingId} Date : ${data.date} Time : ${data.time}, Url : https://wedgrab.com/meetingroom/${data['meetingId']}`,);
   };
 
   const handleStartMeeting = async () => {
@@ -94,7 +94,7 @@ const inviteDetail = (props) => {
               </Block>
               <Block style={styles.child}>
                 <Text style={styles.txt}>Invite Link</Text>
-                <Text style={{...styles.detailTxt, ...styles.linkTxt}}>{`https://wedgrab.com/meetingroom?${data['meetingId']}`}</Text>
+                <Text style={{...styles.detailTxt, ...styles.linkTxt}}>{`https://wedgrab.com/meetingroom/${data['meetingId']}`}</Text>
               </Block>
             </Block>
           </Block>

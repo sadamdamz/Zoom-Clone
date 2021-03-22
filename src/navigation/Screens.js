@@ -1,8 +1,10 @@
 import React, {Component} from 'react';
 import Auth from './Auth';
 import Main from './Main';
+import JoinMeeting from '../screens/JoinMeeting';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
+import linking from './linking';
 
 const Stack = createStackNavigator();
 
@@ -16,12 +18,15 @@ class Screens extends Component {
     const {user} = this.props;
     console.log(user);
     return (
-      <NavigationContainer>
+      <NavigationContainer linking={linking}>
         <Stack.Navigator>
           {user ? (
+            <>
             <Stack.Screen name="Main" options={{headerShown: false}}>
               {(props) => <Main {...props} user={user} />}
             </Stack.Screen>
+            <Stack.Screen name="JoinMeeting" >{(props) => <JoinMeeting {...props} user={user} />}</Stack.Screen>
+            </>
           ) : (
             <Stack.Screen
               name="Auth"
