@@ -38,3 +38,4 @@ export default {
 
 // export const API_URL = `http://139.59.34.203:5000`; //live ip
 // export const API_URL = `http://192.168.43.20:5000`; //local ip
+// https://wedgrab.com

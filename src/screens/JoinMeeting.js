@@ -11,7 +11,9 @@ const JoinMeeting = (props) => {
   const {navigation, user, route} = props;
 
   useEffect(()=>{
-    setMeetingId(route.params.id);
+    if(route.params){
+      setMeetingId(route.params.id);
+    }
   },[])
 
   const handleChange = (value) => {

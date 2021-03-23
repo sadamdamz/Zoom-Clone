@@ -38,31 +38,15 @@ const Profile = (props) => {
       <Block style={styles.editables}>
       <Block style={styles.editChild}>
         <Text style={styles.txt}>{usrName}</Text>
-        <Image
-        style={styles.tinyLogo}
-        source={Images.Edit}
-      />
       </Block>
       <Block style={styles.editChild}>
       <Text style={styles.txt}>About</Text>
-      <Image
-        style={styles.tinyLogo}
-        source={Images.Edit}
-      />
       </Block>
       <Block style={styles.editChild}>
       <Text style={styles.txt}>Privacy</Text>
-      <Image
-        style={styles.tinyLogo}
-        source={Images.Edit}
-      />
       </Block>
       <Block style={styles.editChildLast}>
       <Text style={styles.txt}>Terms & Conditions</Text>
-      <Image
-        style={styles.tinyLogo}
-        source={Images.Edit}
-      />
       </Block>
       </Block>
     </Block>

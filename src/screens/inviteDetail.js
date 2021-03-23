@@ -2,12 +2,8 @@ import React, {useState, useEffect} from 'react';
 import {
   Text,
   StyleSheet,
-  Image,
-  TouchableOpacity,
-  TextInput,
-  SafeAreaView,
-  ScrollView,
   ToastAndroid,
+  SafeAreaView,
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import {Block} from 'galio-framework';
@@ -43,7 +39,8 @@ const inviteDetail = (props) => {
   };
 
   const copyToClipboard = () => {
-    Clipboard.setString(`Topic: ${data.topic} MeetingId : ${data.meetingId} Date : ${data.date} Time : ${data.time}, Url : https://wedgrab.com/meetingroom/${data['meetingId']}`,);
+    Clipboard.setString(`https://wedgrab.com/meetingroom/${data['meetingId']}`,);
+    ToastAndroid.show("Link Copied", ToastAndroid.SHORT);
   };
 
   const handleStartMeeting = async () => {
