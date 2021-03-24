@@ -1,6 +1,6 @@
 const endPoints = {
-    API_URL: "http://192.168.43.20:5000",
-    API_ENDPOINT: "192.168.43.20",
+    API_URL: "https://wedgrab.com",
+    API_ENDPOINT: "wedgrab.com",
 }
 
 const Duration = [
