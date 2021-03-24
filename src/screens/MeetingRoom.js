@@ -257,7 +257,7 @@ class MeetingRoom extends Component {
               color="white"
               style={styles.iconStyle}
             />
-            <Text style={styles.iconTxt}>More</Text>
+            <Text style={styles.iconTxt}>Chat</Text>
           </Block>
         </Block>
       </Block>
