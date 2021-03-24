@@ -11,6 +11,7 @@ import {Theme, Images, Constant} from '../constants/index';
 import {Input, Button} from '../components';
 import {users} from '../axios';
 import Spinner from 'react-native-loading-spinner-overlay';
+import {getUserName} from '../helper/userData';
 
 const inviteDetail = (props) => {
   const [params, setParams] = useState(props.route.params);
@@ -39,7 +40,7 @@ const inviteDetail = (props) => {
   };
 
   const copyToClipboard = () => {
-    Clipboard.setString(`https://wedgrab.com/meetingroom/${data['meetingId']}`,);
+    Clipboard.setString(`${getUserName(user)} is inviting you to Zoom Meeting \n\n Topic: ${data['topic']} \n\n Scheduled Date: ${data['date']} \n\n Scheduled Time: ${data['time']} \n\n MeetingId: ${data['meetingId']} \n\n Link: https://wedgrab.com/meetingroom/${data['meetingId']} \n\n `,);
     ToastAndroid.show("Link Copied", ToastAndroid.SHORT);
   };
 

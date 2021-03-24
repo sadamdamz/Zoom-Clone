@@ -125,6 +125,21 @@ const invites = (props) => {
     setSpinner(false);
   };
 
+  const handleStartMeeting = async () => {
+    setSpinner(true);
+    let postData = {
+      meetingId: meetingId,
+      host: true,
+      user: user._user,
+    };
+    let api = await users.hostMeetingController(postData);
+    navigation.navigate('MeetingRoom', {
+      meetingId: meetingId,
+      user: user._user,
+    });
+    setSpinner(false);
+  };
+
   return (
     <SafeAreaView safe={true} style={styles.container}>
       <Spinner
@@ -224,8 +239,8 @@ const invites = (props) => {
         </Block>
       </Block>
       <Block style={styles.btnContainer}>
-        <Button style={styles.sendBtn} onPress={() => addToCalendar()}>
-          <Text style={styles.sendTxt}>Add Calender</Text>
+        <Button style={styles.sendBtn} onPress={() => handleStartMeeting()}>
+          <Text style={styles.sendTxt}>Start Now</Text>
         </Button>
         <Button style={styles.sendBtn} onPress={() => handleScheduleMeet()}>
           <Text style={styles.sendTxt}>Shedule Meeting</Text>

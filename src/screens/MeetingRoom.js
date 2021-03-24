@@ -21,7 +21,7 @@ import {joinRoom,muteAudio,muteVideo,endMeeting} from '../store/action/videoActi
 import FontAwesome from 'react-native-vector-icons/dist/FontAwesome';
 import FontAwesome5 from 'react-native-vector-icons/dist/FontAwesome5';
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
-import Feather from 'react-native-vector-icons/dist/Feather';
+import Entypo from 'react-native-vector-icons/dist/Entypo';
 import {users} from '../axios';
 
 const windowWidth = Dimensions.get('window').width;
@@ -33,6 +33,7 @@ class MeetingRoom extends Component {
     this.state = {
       mute: true,
       video: true,
+      meetingData:{},
     };
   }
 
@@ -66,7 +67,10 @@ class MeetingRoom extends Component {
     return true;
   };
 
-  getMedia = (meetingId, user) => {
+  getMedia = async(meetingId, user) => {
+    let api = await users.getMeetingDetailById(meetingId);
+    this.setState({meetingData:api.data});
+    console.log(api.data);
     let isFront = true;
     mediaDevices.enumerateDevices().then((sourceInfos) => {
       let videoSourceId;
@@ -150,7 +154,7 @@ class MeetingRoom extends Component {
       },
     } = this.props;
 
-    const {mute, video, stream} = this.state;
+    const {mute, video, stream, meetingData} = this.state;
     console.log(myStream, streams, remoteStreams)
     return (
       <Block style={styles.parent}>
@@ -162,6 +166,7 @@ class MeetingRoom extends Component {
             style={styles.iconStyle}
             onPress={this.switchCam}
           />
+          <Text style={styles.topic}>{meetingData['topic']?`${meetingData['topic'].slice(0,28)}...`:'Conference Call...'}</Text>
           <Button style={styles.endBtn} onPress={this.backAction}>
             <Text style={styles.endText}>End</Text>
           </Button>
@@ -246,8 +251,8 @@ class MeetingRoom extends Component {
             <Text style={styles.iconTxt}>Participants</Text>
           </Block>
           <Block>
-            <Feather
-              name="more-horizontal"
+            <Entypo
+              name="chat"
               size={23}
               color="white"
               style={styles.iconStyle}
@@ -263,6 +268,9 @@ class MeetingRoom extends Component {
 const mapStateToProps = ({video}) => ({video});
 
 const styles = StyleSheet.create({
+  topic:{
+    color:'white',
+  },
   parent: {
     flex: 1,
     height: windowHeight * 0.5,

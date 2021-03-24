@@ -61,15 +61,32 @@ const meetingID = async (req, res) => {
 const hostMeetingController = async (req, res) => {
   const {meetingId, host, user} = req.body;
   let users = [user];
+  let uid = user.uid;
+  let data = {};
   try {
-    let data = await db
-      .ref('meetings/' + meetingId)
-      .set({host: host, users: users});
-    if (host) {
-      res.send({status: 200, message: 'Meeting Started'});
-    } else {
-      res.send({status: 200, message: 'Meeting Ended'});
-    }
+    await db
+    .ref('users/' + uid + '/meetings/' + meetingId)
+    .once('value')
+    .then(async(snapshot) => {
+      if(snapshot.exists()){
+        let value = snapshot.val()
+        value['host'] = host;
+        value['users'] = users;
+        await db
+        .ref('meetings/' + meetingId)
+        .set({...value});
+        if (host) {
+          res.send({status: 200, message: 'Meeting Started', data:value});
+        } else {
+          res.send({status: 200, message: 'Meeting Ended'});
+        }
+      }else{
+        await db
+        .ref('meetings/' + meetingId)
+        .set({host:host, users:users});
+        res.send({status: 200, message: 'Meeting Started', data:value});
+      }
+    })
   } catch (error) {
     res.send({status: 501, error: error});
   }
@@ -88,7 +105,7 @@ const joinRoom = async (req, res) => {
       await db.ref('meetings/' + meetingId).set(data);
       res.send({status: 200, message: 'You can Join Now'});
     } else {
-      res.send({status: 205, message: 'Meeting ID you Entered is Wrong'});
+      res.send({status: 205, message: 'Host not Started the Meeting'});
     }
   } catch (error) {
     res.send({status: 501, error: error});
