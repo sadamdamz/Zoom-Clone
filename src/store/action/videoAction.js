@@ -25,20 +25,20 @@ socket.on('connection',()=>{
 })
 
 let peerServer = null;
+
 export const joinRoom = (stream, meetingId, user) => async(dispatch) => {
-  console.log(peerServer);
   peerServer = peer()
   const roomId = meetingId;
-
+  console.log('myself', user);
   dispatch({type:MY_STREAM, payload:{stream:stream,id:socket.id,user:user}});
 
   //connection to server
   peerServer.on('open',(peerID)=>{
-    console.log('first peer id = ', peerID)
-    socket.emit('join-room', {peerID, roomId})
+    socket.emit('join-room', {peerID, roomId, user})
   })
 
-  socket.on('user-connected', ({peerID,roomId,socketId})=>{
+  socket.on('user-connected', ({peerID,roomId,socketId, user})=>{
+    console.log('socket users',user);
     const call = peerServer.call(peerID, stream);
     call.on('stream', (remoteVideoStream) => {
       if(remoteVideoStream){
@@ -49,7 +49,6 @@ export const joinRoom = (stream, meetingId, user) => async(dispatch) => {
 
   //recieve a call
   peerServer.on('call',(call)=>{
-    console.log(call);
     call.answer(stream);
 
     //stream back the call

@@ -7,8 +7,8 @@ const socketToRoom = {};
 
 module.exports = function(socket){
   console.log('socket connected', socket.id)
-  socket.on('join-room', ({peerID,roomId})=>{
-    console.log('newuser',roomId,peerID);
+  socket.on('join-room', ({peerID,roomId,user})=>{
+    console.log('newuser',roomId,peerID,user);
     let socketId = socket.id
     if(users[roomId]){
       let length = users[roomId].length;
@@ -21,7 +21,7 @@ module.exports = function(socket){
       users[roomId] = [socket.id];
     }
     socket.join(roomId);
-    socket.to(roomId).broadcast.emit('user-connected', ({peerID, roomId, socketId}))
+    socket.to(roomId).broadcast.emit('user-connected', ({peerID, roomId, socketId, user}))
     console.log(users);
   })
 

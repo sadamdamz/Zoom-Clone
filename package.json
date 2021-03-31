@@ -39,6 +39,7 @@
     "react-native-paper": "^4.7.1",
     "react-native-peerjs": "^1.0.4",
     "react-native-phone-number-input": "^2.0.0",
+    "react-native-raw-bottom-sheet": "^2.2.0",
     "react-native-reanimated": "^1.13.2",
     "react-native-rename": "^2.7.0",
     "react-native-safe-area-context": "^3.1.9",

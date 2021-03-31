@@ -6,23 +6,29 @@ import {
   ScrollView,
   Dimensions,
   Text,
-  BackHandler, 
-  Alert
+  BackHandler,
+  Alert,
+  View,
 } from 'react-native';
 import {Theme} from '../constants';
 import {Block} from 'galio-framework';
 import {Button} from '../components/index';
-import {
-  mediaDevices,
-  RTCView,
-} from 'react-native-webrtc';
+import {mediaDevices, RTCView} from 'react-native-webrtc';
 import {connect} from 'react-redux';
-import {joinRoom,muteAudio,muteVideo,endMeeting} from '../store/action/videoAction';
+import {
+  joinRoom,
+  muteAudio,
+  muteVideo,
+  endMeeting,
+} from '../store/action/videoAction';
 import FontAwesome from 'react-native-vector-icons/dist/FontAwesome';
 import FontAwesome5 from 'react-native-vector-icons/dist/FontAwesome5';
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
 import Entypo from 'react-native-vector-icons/dist/Entypo';
 import {users} from '../axios';
+import RBSheet from 'react-native-raw-bottom-sheet';
+import UserAvatar from 'react-native-user-avatar';
+import {getUserName} from '../helper/userData';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -33,7 +39,7 @@ class MeetingRoom extends Component {
     this.state = {
       mute: true,
       video: true,
-      meetingData:{},
+      meetingData: {},
     };
   }
 
@@ -41,11 +47,11 @@ class MeetingRoom extends Component {
     const {meetingId, user} = this.props.route.params;
     const {mute, video} = this.state;
     this.getMedia(meetingId, user, mute, video);
-    BackHandler.addEventListener("hardwareBackPress", this.backAction);
+    BackHandler.addEventListener('hardwareBackPress', this.backAction);
   }
 
   componentWillUnmount() {
-    BackHandler.removeEventListener("hardwareBackPress", this.backAction);
+    BackHandler.removeEventListener('hardwareBackPress', this.backAction);
   }
 
   switchCam = () => {
@@ -56,20 +62,20 @@ class MeetingRoom extends Component {
   };
 
   backAction = () => {
-    Alert.alert("Are you sure","you want to End the Meeting ?", [
+    Alert.alert('Are you sure', 'you want to End the Meeting ?', [
       {
-        text: "Cancel",
+        text: 'Cancel',
         onPress: () => null,
-        style: "cancel"
+        style: 'cancel',
       },
-      { text: "YES", onPress: () => this.endMeeting() }
+      {text: 'YES', onPress: () => this.endMeeting()},
     ]);
     return true;
   };
 
-  getMedia = async(meetingId, user) => {
+  getMedia = async (meetingId, user) => {
     let api = await users.getMeetingDetailById(meetingId);
-    this.setState({meetingData:api.data});
+    this.setState({meetingData: api.data});
     console.log(api.data);
     let isFront = true;
     mediaDevices.enumerateDevices().then((sourceInfos) => {
@@ -114,14 +120,14 @@ class MeetingRoom extends Component {
     const {meetingId, user} = this.props.route.params;
     const {stream} = this.state;
     this.props.joinRoom(stream, meetingId, user);
-  }
+  };
 
   muteAudio = () => {
     const {meetingId, user} = this.props.route.params;
     const {mute} = this.state;
     this.state.stream._tracks[0].enabled = !mute;
     this.setState({mute: !mute, stream: this.state.stream});
-    this.props.muteAudio(this.state.stream,user);
+    this.props.muteAudio(this.state.stream, user);
   };
 
   muteCamera = () => {
@@ -129,35 +135,96 @@ class MeetingRoom extends Component {
     const {video} = this.state;
     this.state.stream._tracks[1].enabled = !video;
     this.setState({video: !video, stream: this.state.stream});
-    this.props.muteVideo(this.state.stream,user);
+    this.props.muteVideo(this.state.stream, user);
   };
 
-  endMeeting = async() => {
+  endMeeting = async () => {
     const {stream} = this.state;
     const {meetingId, user} = this.props.route.params;
     let postData = {
-      meetingId:meetingId,
-      user:user,
-    }
-    this.props.endMeeting(meetingId,stream,user);
+      meetingId: meetingId,
+      user: user,
+    };
+    this.props.endMeeting(meetingId, stream, user);
     // let api = await users.endMeeting(postData);
     this.props.navigation.navigate('MeetingList');
-  }
+  };
 
   render() {
     const {
       navigation,
-      video: {
-        myStream,
-        streams, 
-        remoteStreams
-      },
+      video: {myStream, streams, remoteStreams},
+      user,
     } = this.props;
-
     const {mute, video, stream, meetingData} = this.state;
-    console.log(myStream, streams, remoteStreams)
+    console.log(myStream, streams, remoteStreams);
     return (
       <Block style={styles.parent}>
+        <RBSheet
+          ref={(ref) => {
+            this.RBSheet = ref;
+          }}
+          height={400}
+          openDuration={250}
+          customStyles={{}}>
+          <Block style={styles.participantsContainer}>
+            <Text style={styles.participantsTitle}>Participants</Text>
+            <ScrollView>
+              <Block>
+                {/* <Block style={styles.participants}>
+                  <UserAvatar
+                    isPicture={false}
+                    shape="rounded"
+                    name={getUserName(user)}
+                  />
+                  <Text style={styles.participantsName}>You</Text>
+                </Block> */}
+                {myStream ? (
+                  <Block style={styles.participants}>
+                    <UserAvatar
+                      isPicture={false}
+                      shape="rounded"
+                      name={myStream.user.displayName}
+                    />
+                    <Text style={styles.participantsName}>{myStream.user.displayName}</Text>
+                  </Block>
+                ) : null}
+                {streams.length > 0 ? (
+                  <>
+                    {streams.map((item, index) => (
+                      <Block style={styles.participants} key={index}>
+                        <UserAvatar
+                          isPicture={false}
+                          shape="rounded"
+                          name={item.user.displayName}
+                        />
+                        <Text style={styles.participantsName}>
+                          {item.user.displayName}
+                        </Text>
+                      </Block>
+                    ))}
+                  </>
+                ) : null}
+                {remoteStreams.length > 0 ? (
+                  <>
+                    {remoteStreams.map((item, index) => (
+                      <Block style={styles.participants} key={index}>
+                        <UserAvatar
+                          isPicture={false}
+                          shape="rounded"
+                          name={item.user.displayName}
+                        />
+                        <Text style={styles.participantsName}>
+                          {item.user.displayName}
+                        </Text>
+                      </Block>
+                    ))}
+                  </>
+                ) : null}
+              </Block>
+            </ScrollView>
+          </Block>
+        </RBSheet>
         <Block style={styles.child1}>
           <Ionicons
             name="camera-reverse-sharp"
@@ -166,18 +233,25 @@ class MeetingRoom extends Component {
             style={styles.iconStyle}
             onPress={this.switchCam}
           />
-          <Text style={styles.topic}>{meetingData['topic']?`${meetingData['topic'].slice(0,28)}...`:'Conference Call...'}</Text>
+          <Text style={styles.topic}>
+            {meetingData['topic']
+              ? `${meetingData['topic'].slice(0, 28)}...`
+              : 'Conference Call...'}
+          </Text>
           <Button style={styles.endBtn} onPress={this.backAction}>
             <Text style={styles.endText}>End</Text>
           </Button>
         </Block>
         <Block style={styles.child2}>
           {myStream ? (
-            myStream.stream._tracks[1].enabled == true?(
-            <>
-              <RTCView streamURL={myStream.stream.toURL()} style={styles.mainRtc} />
-            </>
-            ):null
+            myStream.stream._tracks[1].enabled == true ? (
+              <>
+                <RTCView
+                  streamURL={myStream.stream.toURL()}
+                  style={styles.mainRtc}
+                />
+              </>
+            ) : null
           ) : null}
         </Block>
         <Block style={styles.child3}>
@@ -187,14 +261,12 @@ class MeetingRoom extends Component {
                 {streams.map((item, index) => {
                   return (
                     <Block style={styles.scrollChilds} key={index}>
-                      {
-                        item.stream._tracks[1].enabled == true?(
-                          <RTCView
+                      {item.stream._tracks[1].enabled == true ? (
+                        <RTCView
                           streamURL={item.stream.toURL()}
                           style={styles.childRtc}
                         />
-                        ):null
-                      }
+                      ) : null}
                     </Block>
                   );
                 })}
@@ -205,14 +277,12 @@ class MeetingRoom extends Component {
                 {remoteStreams.map((item, index) => {
                   return (
                     <Block style={styles.scrollChilds} key={index}>
-                      {
-                        item.stream._tracks[1].enabled == true?(
-                          <RTCView
+                      {item.stream._tracks[1].enabled == true ? (
+                        <RTCView
                           streamURL={item.stream.toURL()}
                           style={styles.childRtc}
                         />
-                        ):null
-                      }
+                      ) : null}
                     </Block>
                   );
                 })}
@@ -247,6 +317,7 @@ class MeetingRoom extends Component {
               size={23}
               color="white"
               style={styles.iconStyle}
+              onPress={() => this.RBSheet.open()}
             />
             <Text style={styles.iconTxt}>Participants</Text>
           </Block>
@@ -268,8 +339,28 @@ class MeetingRoom extends Component {
 const mapStateToProps = ({video}) => ({video});
 
 const styles = StyleSheet.create({
-  topic:{
-    color:'white',
+  topic: {
+    color: 'white',
+  },
+  participantsContainer: {},
+  participantsTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    padding: 10,
+    textAlign: 'center',
+  },
+  participants: {
+    flex: 1,
+    flexDirection: 'row',
+    padding: 10,
+    marginLeft: 20,
+    alignItems: 'center',
+  },
+  participantsImg: {},
+  participantsName: {
+    fontSize: 17,
+    marginLeft: 10,
+    marginRight: 20,
   },
   parent: {
     flex: 1,
@@ -279,7 +370,7 @@ const styles = StyleSheet.create({
   child1: {
     flex: 1,
     flexDirection: 'row',
-    justifyContent:'space-between',
+    justifyContent: 'space-between',
     alignItems: 'center',
     paddingLeft: 20,
     paddingRight: 20,
@@ -337,4 +428,9 @@ const styles = StyleSheet.create({
   },
 });
 
-export default connect(mapStateToProps, {joinRoom,muteAudio,muteVideo,endMeeting})(MeetingRoom);
+export default connect(mapStateToProps, {
+  joinRoom,
+  muteAudio,
+  muteVideo,
+  endMeeting,
+})(MeetingRoom);
