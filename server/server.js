@@ -46,6 +46,21 @@ io.on('disconnect', function(socket){
   console.log('User with socketId %s disconnected', socket.id);
 });
 
-const port = process.env.PORT || 5000;
+// const port = process.env.PORT || 5000;
 
-server.listen(port, ()=>console.log(`server is running on port ${port}`));
+// server.listen(port, ()=>console.log(`server is running on port ${port}`));
+
+// start http server
+const port = process.env.PORT || 5000;
+// let server = http.createServer(app).listen(port);
+ 
+// start https server
+let sslOptions = {
+   key: fs.readFileSync('./config/cert.key'),
+   cert: fs.readFileSync('./config/cert.crt')
+};
+ 
+let serverHttps = https.createServer(sslOptions, app);
+serverHttps.listen(port, () => {
+    console.log(`Clashin Server is listening on port ${port}`);
+});
