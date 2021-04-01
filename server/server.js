@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const socketio = require('socket.io');
 const socketManager = require('./socket/socketManager');
 const morgan = require('morgan');
+const fs = require('fs');
 
 const { ExpressPeerServer } = require('peer')
 
