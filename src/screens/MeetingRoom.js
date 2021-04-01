@@ -299,7 +299,7 @@ class MeetingRoom extends Component {
               style={styles.iconStyle}
               onPress={this.muteAudio}
             />
-            <Text style={styles.iconTxt}>{mute ? 'Mute' : 'UnMute'}</Text>
+            <Text style={styles.iconTxt} onPress={this.muteAudio}>{mute ? 'Mute' : 'UnMute'}</Text>
           </Block>
           <Block>
             <FontAwesome5
@@ -309,7 +309,7 @@ class MeetingRoom extends Component {
               style={styles.iconStyle}
               onPress={this.muteCamera}
             />
-            <Text style={styles.iconTxt}>{video ? 'Camera' : 'Turn On'}</Text>
+            <Text style={styles.iconTxt} onPress={this.muteCamera}>{video ? 'Camera' : 'Turn On'}</Text>
           </Block>
           <Block>
             <Ionicons
@@ -319,7 +319,7 @@ class MeetingRoom extends Component {
               style={styles.iconStyle}
               onPress={() => this.RBSheet.open()}
             />
-            <Text style={styles.iconTxt}>Participants</Text>
+            <Text style={styles.iconTxt} onPress={() => this.RBSheet.open()}>Participants</Text>
           </Block>
           <Block>
             <Entypo
