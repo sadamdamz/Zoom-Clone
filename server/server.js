@@ -31,7 +31,8 @@ const peerServer = ExpressPeerServer(server, {
   ssl: {
     key: fs.readFileSync('./config/cert.key'),
     cert: fs.readFileSync('./config/cert.crt')
-  }
+  },
+  proxied: true
 });
 
 app.use('/mypeer', peerServer);
