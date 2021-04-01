@@ -27,6 +27,10 @@ const peerServer = ExpressPeerServer(server, {
   debug: true,
   path: '/',
   generateClientId: customGenrationFunction,
+  ssl: {
+    key: fs.readFileSync('./config/cert.key'),
+    cert: fs.readFileSync('./config/cert.crt')
+  }
 });
 
 app.use('/mypeer', peerServer);
