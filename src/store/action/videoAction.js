@@ -20,6 +20,7 @@ export const socket = IO(`${API_URL}`,{
   forceNew: true,
 })
 
+
 socket.on('connection',()=>{
   console.log('client connected');
 })
@@ -39,7 +40,7 @@ export const joinRoom = (stream, meetingId, user) => async(dispatch) => {
 
   socket.on('user-connected', ({peerID,roomId,socketId, user})=>{
     console.log('socket users',user);
-    const call = peerServer.call(peerID, stream);
+    const call = peerServer.call(peerID, stream, user);
     call.on('stream', (remoteVideoStream) => {
       if(remoteVideoStream){
         dispatch({type:ADD_REMOTE_STREAM, payload:{stream:remoteVideoStream,id:socketId,user:user}})
@@ -52,7 +53,7 @@ export const joinRoom = (stream, meetingId, user) => async(dispatch) => {
     call.answer(stream);
 
     //stream back the call
-    call.on('stream', (stream)=>{
+    call.on('stream', ({stream,user})=>{
       dispatch({type:ADD_STREAM, payload:{stream:stream,id:socket.id,user:user}})
     })
   })

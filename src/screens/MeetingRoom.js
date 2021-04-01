@@ -171,22 +171,14 @@ class MeetingRoom extends Component {
             <Text style={styles.participantsTitle}>Participants</Text>
             <ScrollView>
               <Block>
-                {/* <Block style={styles.participants}>
-                  <UserAvatar
-                    isPicture={false}
-                    shape="rounded"
-                    name={getUserName(user)}
-                  />
-                  <Text style={styles.participantsName}>You</Text>
-                </Block> */}
                 {myStream ? (
                   <Block style={styles.participants}>
                     <UserAvatar
                       isPicture={false}
                       shape="rounded"
-                      name={myStream.user.displayName}
+                      name={myStream.user.displayName?myStream.user.displayName:myStream.user.phoneNumber}
                     />
-                    <Text style={styles.participantsName}>{myStream.user.displayName}</Text>
+                    <Text style={styles.participantsName}>{myStream.user.displayName?myStream.user.displayName:myStream.user.phoneNumber}</Text>
                   </Block>
                 ) : null}
                 {streams.length > 0 ? (
@@ -196,10 +188,10 @@ class MeetingRoom extends Component {
                         <UserAvatar
                           isPicture={false}
                           shape="rounded"
-                          name={item.user.displayName}
+                          name={item.user.displayName?item.user.displayName:item.user.phoneNumber}
                         />
                         <Text style={styles.participantsName}>
-                          {item.user.displayName}
+                          {item.user.displayName?item.user.displayName:item.user.phoneNumber}
                         </Text>
                       </Block>
                     ))}
@@ -212,10 +204,10 @@ class MeetingRoom extends Component {
                         <UserAvatar
                           isPicture={false}
                           shape="rounded"
-                          name={item.user.displayName}
+                          name={item.user.displayName?item.user.displayName:item.user.phoneNumber}
                         />
                         <Text style={styles.participantsName}>
-                          {item.user.displayName}
+                          {item.user.displayName?item.user.displayName:item.user.phoneNumber}
                         </Text>
                       </Block>
                     ))}
