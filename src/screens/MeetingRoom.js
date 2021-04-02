@@ -28,7 +28,7 @@ import Entypo from 'react-native-vector-icons/dist/Entypo';
 import {users} from '../axios';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import UserAvatar from 'react-native-user-avatar';
-import {getUserName} from '../helper/userData';
+import {getDefaultName} from '../helper/userData';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -153,11 +153,11 @@ class MeetingRoom extends Component {
   render() {
     const {
       navigation,
-      video: {myStream, streams, remoteStreams},
-      user,
+      video: {myStream, streams, remoteStreams, users},
     } = this.props;
+    const {meetingId, user} = this.props.route.params;
     const {mute, video, stream, meetingData} = this.state;
-    console.log(myStream, streams, remoteStreams);
+    console.log(users);
     return (
       <Block style={styles.parent}>
         <RBSheet
@@ -171,43 +171,17 @@ class MeetingRoom extends Component {
             <Text style={styles.participantsTitle}>Participants</Text>
             <ScrollView>
               <Block>
-                {myStream ? (
-                  <Block style={styles.participants}>
-                    <UserAvatar
-                      isPicture={false}
-                      shape="rounded"
-                      name={myStream.user.displayName?myStream.user.displayName:myStream.user.phoneNumber}
-                    />
-                    <Text style={styles.participantsName}>{myStream.user.displayName?myStream.user.displayName:myStream.user.phoneNumber}</Text>
-                  </Block>
-                ) : null}
-                {streams.length > 0 ? (
+                {users.length > 0 ? (
                   <>
-                    {streams.map((item, index) => (
+                    {users[0].map((item, index) => (
                       <Block style={styles.participants} key={index}>
                         <UserAvatar
                           isPicture={false}
                           shape="rounded"
-                          name={item.user.displayName?item.user.displayName:item.user.phoneNumber}
+                          name={getDefaultName(item)}
                         />
                         <Text style={styles.participantsName}>
-                          {item.user.displayName?item.user.displayName:item.user.phoneNumber}
-                        </Text>
-                      </Block>
-                    ))}
-                  </>
-                ) : null}
-                {remoteStreams.length > 0 ? (
-                  <>
-                    {remoteStreams.map((item, index) => (
-                      <Block style={styles.participants} key={index}>
-                        <UserAvatar
-                          isPicture={false}
-                          shape="rounded"
-                          name={item.user.displayName?item.user.displayName:item.user.phoneNumber}
-                        />
-                        <Text style={styles.participantsName}>
-                          {item.user.displayName?item.user.displayName:item.user.phoneNumber}
+                          {getDefaultName(item)}
                         </Text>
                       </Block>
                     ))}
@@ -291,7 +265,9 @@ class MeetingRoom extends Component {
               style={styles.iconStyle}
               onPress={this.muteAudio}
             />
-            <Text style={styles.iconTxt} onPress={this.muteAudio}>{mute ? 'Mute' : 'UnMute'}</Text>
+            <Text style={styles.iconTxt} onPress={this.muteAudio}>
+              {mute ? 'Mute' : 'UnMute'}
+            </Text>
           </Block>
           <Block>
             <FontAwesome5
@@ -301,7 +277,9 @@ class MeetingRoom extends Component {
               style={styles.iconStyle}
               onPress={this.muteCamera}
             />
-            <Text style={styles.iconTxt} onPress={this.muteCamera}>{video ? 'Camera' : 'Turn On'}</Text>
+            <Text style={styles.iconTxt} onPress={this.muteCamera}>
+              {video ? 'Camera' : 'Turn On'}
+            </Text>
           </Block>
           <Block>
             <Ionicons
@@ -311,7 +289,9 @@ class MeetingRoom extends Component {
               style={styles.iconStyle}
               onPress={() => this.RBSheet.open()}
             />
-            <Text style={styles.iconTxt} onPress={() => this.RBSheet.open()}>Participants</Text>
+            <Text style={styles.iconTxt} onPress={() => this.RBSheet.open()}>
+              Participants
+            </Text>
           </Block>
           <Block>
             <Entypo

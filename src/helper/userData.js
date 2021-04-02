@@ -10,6 +10,23 @@ const getUserName = (user) => {
   return name;
 }
 
+const getDefaultName = (user) => {
+  let name;
+  if(!user){
+    return name
+  }else{
+    if(!user['phoneNumber'] && !user['displayName']){
+      name=user.email;
+    }else if(!user['phoneNumber']){
+      name=user.displayName
+    }else{
+      name = user.phoneNumber
+    }
+  }
+  return name;
+}
+
 export {
-  getUserName
+  getUserName,
+  getDefaultName
 }

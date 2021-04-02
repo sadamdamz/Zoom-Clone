@@ -1,9 +1,10 @@
-import { MY_STREAM, ADD_STREAM, ADD_REMOTE_STREAM, REMOVE_STREAM } from "../action/types";
+import { MY_STREAM, ADD_STREAM, ADD_REMOTE_STREAM, REMOVE_STREAM, ADD_USERS } from "../action/types";
 
 const initialState = {
   myStream: null,
   streams: [],
-  remoteStreams: []
+  remoteStreams: [],
+  users:[],
 };
 
 export default (state=initialState, {type, payload}) => {
@@ -23,6 +24,11 @@ export default (state=initialState, {type, payload}) => {
       return {
         ...state,
         remoteStreams: [...state.remoteStreams,payload]
+      }
+    case ADD_USERS:
+      return{
+        ...state,
+        users: [payload]
       }
     case REMOVE_STREAM:
       console.log(payload.stream.id)
