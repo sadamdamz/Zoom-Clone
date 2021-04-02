@@ -7,10 +7,9 @@ export const API_URL = Constant.endPoints.API_URL
 
 const peer = () => {
   let peerServer =  new Peer(undefined, {
-    host: Constant.endPoints.API_ENDPOINT,
-    secure: false,
-    port: 5000,
-    // port: 443,
+    host: "wedgrab.com",
+    secure: true,
+    port: 443,
     path: '/mypeer'
   })
   return peerServer
