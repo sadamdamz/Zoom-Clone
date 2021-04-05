@@ -1,4 +1,4 @@
-import { JOIN_CHAT, ADD_STREAM, MY_STREAM, ADD_REMOTE_STREAM, REMOVE_STREAM, ADD_USERS } from './types';
+import { JOIN_CHAT, ADD_STREAM, MY_STREAM, ADD_REMOTE_STREAM, REMOVE_STREAM, ADD_USERS, RESET } from './types';
 import IO from 'socket.io-client';
 import Peer from 'react-native-peerjs'
 import { Constant } from '../../constants';
@@ -26,6 +26,7 @@ socket.on('connection',()=>{
 })
 
 let peerServer = null;
+let call = null;
 
 export const joinRoom = (stream, meetingId, user) => async(dispatch) => {
   peerServer = peer()
@@ -41,27 +42,41 @@ export const joinRoom = (stream, meetingId, user) => async(dispatch) => {
     dispatch({type:ADD_USERS,payload:users})
   })
 
-  socket.on('user-connected', ({peerID,roomId,socketId, users})=>{
-    console.log('socket users',users);
-    const call = peerServer.call(peerID, stream);
-    // dispatch({type:ADD_USERS,payload:users})
+  socket.on('user-connected', ({peerID,roomId,socketId, user})=>{
+    call = peerServer.call(peerID, stream,{metadata:{user:user}});
+    console.log('first call event',call);
     call.on('stream', (remoteVideoStream) => {
+      console.log('stream call event',call);
       if(remoteVideoStream){
-        dispatch({type:ADD_REMOTE_STREAM, payload:{stream:remoteVideoStream,id:socketId,user:users}})
+        dispatch({type:ADD_REMOTE_STREAM, payload:{stream:remoteVideoStream,id:socketId,user:call.metadata}})
       }
     })
   })
 
   //recieve a call
   peerServer.on('call',(call)=>{
-    console.log(call);
+    console.log('calling',call)
     call.answer(stream);
 
     //stream back the call
     call.on('stream', (stream)=>{
-      dispatch({type:ADD_STREAM, payload:{stream:stream,id:socket.id}})
+      dispatch({type:ADD_STREAM, payload:{stream:stream,id:socket.id,user:call.metadata}})
     })
   })
+
+  peerServer.on('close',(call)=>{
+    console.log('closed event trigerred',call)
+  })
+
+  socket.on('user-left',({socketId})=>{
+    console.log('user-left event',socketId);
+    dispatch({type:REMOVE_STREAM, payload:{id:socketId}});
+    })
+
+  socket.on('disconnected',({socketId,roomId,user})=>{
+    dispatch({type:REMOVE_STREAM, payload:{id:socketId}});
+  })
+
 }
 
 export const muteAudio = (stream,user) => async(dispatch) => {
@@ -72,18 +87,11 @@ export const muteVideo = (stream,user) => async(dispatch) => {
   dispatch({type:MY_STREAM, payload:{stream:stream,id:socket.id,user:user}});
 }
 
-export const endMeeting = (roomId,stream,user) => async(dispatch) => {
-  
-  let socketId = socket.id
+export const endMeeting = (roomId,stream,user,socketId) => async(dispatch) => {
 
   socket.emit('leave-room',{roomId,socketId,user});
+  peerServer.destroy()
+  call.close();
+  dispatch({type:RESET, payload:null})
 
-  socket.on('user-left',({socketId, users})=>{
-    let call = peerServer.destroy()
-    // dispatch({type:ADD_USERS,payload:users})
-    dispatch({type:REMOVE_STREAM, payload:{stream:stream,id:socketId}});
-    })
-  socket.on('new-user',({users})=>{
-    dispatch({type:ADD_USERS,payload:users})
-  })
 }

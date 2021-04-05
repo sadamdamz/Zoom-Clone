@@ -141,11 +141,12 @@ class MeetingRoom extends Component {
   endMeeting = async () => {
     const {stream} = this.state;
     const {meetingId, user} = this.props.route.params;
+    const {video:{myStream}} = this.props;
     let postData = {
       meetingId: meetingId,
       user: user,
     };
-    this.props.endMeeting(meetingId, stream, user);
+    this.props.endMeeting(meetingId, stream, user, myStream.id);
     // let api = await users.endMeeting(postData);
     this.props.navigation.navigate('MeetingList');
   };
@@ -187,6 +188,56 @@ class MeetingRoom extends Component {
                     ))}
                   </>
                 ) : null}
+                {/* {myStream ? (
+                  <>
+                    <Block style={styles.participants}>
+                      <UserAvatar
+                        isPicture={false}
+                        shape="rounded"
+                        name={getDefaultName(myStream.user)}
+                      />
+                      <Text style={styles.participantsName}>
+                        {getDefaultName(myStream.user)}
+                      </Text>
+                    </Block>
+                  </>
+                ) : null}
+                {streams ? (
+                  <>
+                    {streams.map((item, index) => {
+                      return (
+                        <Block style={styles.participants} key={index}>
+                          <UserAvatar
+                            isPicture={false}
+                            shape="rounded"
+                            name={getDefaultName(item.user.user)}
+                          />
+                          <Text style={styles.participantsName}>
+                            {getDefaultName(item.user.user)}
+                          </Text>
+                        </Block>
+                      );
+                    })}
+                  </>
+                ) : null}
+                {remoteStreams ? (
+                  <>
+                    {remoteStreams.map((item, index) => {
+                      return (
+                        <Block style={styles.participants} key={index}>
+                          <UserAvatar
+                            isPicture={false}
+                            shape="rounded"
+                            name={getDefaultName(item.user.user)}
+                          />
+                          <Text style={styles.participantsName}>
+                            {getDefaultName(item.user.user)}
+                          </Text>
+                        </Block>
+                      );
+                    })}
+                  </>
+                ) : null} */}
               </Block>
             </ScrollView>
           </Block>

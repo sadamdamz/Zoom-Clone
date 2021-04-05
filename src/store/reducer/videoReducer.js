@@ -1,4 +1,4 @@
-import { MY_STREAM, ADD_STREAM, ADD_REMOTE_STREAM, REMOVE_STREAM, ADD_USERS } from "../action/types";
+import { MY_STREAM, ADD_STREAM, ADD_REMOTE_STREAM, REMOVE_STREAM, ADD_USERS, RESET } from "../action/types";
 
 const initialState = {
   myStream: null,
@@ -8,7 +8,7 @@ const initialState = {
 };
 
 export default (state=initialState, {type, payload}) => {
-  console.log(initialState);
+  console.log(type,state, payload)
   switch (type) {
     case MY_STREAM: 
       return {
@@ -16,14 +16,20 @@ export default (state=initialState, {type, payload}) => {
         myStream: payload
       }
     case ADD_STREAM:
+      let stream = state.streams.filter((item,index)=>{
+        return item.id !== payload.id
+      })
       return {
         ...state,
-        streams: [...state.streams, payload]
+        streams: [...stream,payload]
       }
     case ADD_REMOTE_STREAM: 
+    let remote = state.remoteStreams.filter((item,index)=>{
+      return item.id !== payload.id
+    })
       return {
         ...state,
-        remoteStreams: [...state.remoteStreams,payload]
+        remoteStreams: [...remote,payload]
       }
     case ADD_USERS:
       return{
@@ -31,18 +37,23 @@ export default (state=initialState, {type, payload}) => {
         users: [payload]
       }
     case REMOVE_STREAM:
-      console.log(payload.stream.id)
       let streams = state.streams.filter((item,index)=>{
-        return item.stream.id !== payload.stream.id
+        return item.id !== payload.id
       })
       let remoteStreams = state.remoteStreams.filter((item,index)=>{
-        return item.stream.id !== payload.stream.id
+        return item.id !== payload.id
       })
       return {
         ...state,
+        streams: streams,
+        remoteStreams: remoteStreams,
+      }
+    case RESET:
+      return{
         myStream: null,
         streams: [],
         remoteStreams: [],
+        users:[],
       }
     default:
      return state;
