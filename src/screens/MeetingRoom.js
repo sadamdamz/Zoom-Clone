@@ -9,6 +9,7 @@ import {
   BackHandler,
   Alert,
   View,
+  DeviceEventEmitter,
 } from 'react-native';
 import {Theme} from '../constants';
 import {Block} from 'galio-framework';
@@ -24,11 +25,17 @@ import {
 import FontAwesome from 'react-native-vector-icons/dist/FontAwesome';
 import FontAwesome5 from 'react-native-vector-icons/dist/FontAwesome5';
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
+import Feather from 'react-native-vector-icons/dist/Feather';
 import Entypo from 'react-native-vector-icons/dist/Entypo';
 import {users} from '../axios';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import UserAvatar from 'react-native-user-avatar';
 import {getDefaultName} from '../helper/userData';
+import InCallManager from 'react-native-incall-manager';
+import {
+  responsiveScreenHeight,
+  responsiveScreenWidth,
+} from "react-native-responsive-dimensions";
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -39,19 +46,49 @@ class MeetingRoom extends Component {
     this.state = {
       mute: true,
       video: true,
+      speaker: false,
       meetingData: {},
+      orientation: ''
     };
+  }
+
+  getOrientation = () =>
+  {
+  console.log('getorientation', this.state.orientation);
+        if( Dimensions.get('window').width < Dimensions.get('window').height )
+        {
+          this.setState({ orientation: 'portrait' });
+        }
+        else
+        {
+          this.setState({ orientation: 'landscape' });
+        }
   }
 
   componentDidMount() {
     const {meetingId, user} = this.props.route.params;
     const {mute, video} = this.state;
+    this.getOrientation();
     this.getMedia(meetingId, user, mute, video);
+    Dimensions.addEventListener( 'change', () =>
+    {
+      this.getOrientation();
+    });
+    DeviceEventEmitter.addListener('Proximity', function (data) {
+      console.log('proximity', data);
+      // --- do something with events
+    });
+    DeviceEventEmitter.addListener('WiredHeadset', function (data) {
+      console.log('headphones', data);
+      // --- do something with events
+    });
     BackHandler.addEventListener('hardwareBackPress', this.backAction);
   }
 
   componentWillUnmount() {
     BackHandler.removeEventListener('hardwareBackPress', this.backAction);
+    InCallManager.stopRingtone();
+    InCallManager.stop();
   }
 
   switchCam = () => {
@@ -113,7 +150,19 @@ class MeetingRoom extends Component {
 
   setStream = (stream) => {
     this.setState({stream});
+    // InCallManager.start({media: 'audio', ringback: '_BUNDLE_'});
+    InCallManager.start({media: 'audio'});
+    InCallManager.setSpeakerphoneOn(false);
+    InCallManager.setKeepScreenOn(true);
     this.joinRoom();
+  };
+
+  handleSpeaker = () => {
+    const {speaker} = this.state;
+    this.setState({speaker: !speaker}, () => {
+      InCallManager.setSpeakerphoneOn(this.state.speaker);
+      console.log('InCallManager', InCallManager);
+    });
   };
 
   joinRoom = () => {
@@ -141,24 +190,23 @@ class MeetingRoom extends Component {
   endMeeting = async () => {
     const {stream} = this.state;
     const {meetingId, user} = this.props.route.params;
-    const {video:{myStream}} = this.props;
+    const {
+      video: {myStream},
+    } = this.props;
     let postData = {
       meetingId: meetingId,
       user: user,
     };
     this.props.endMeeting(meetingId, stream, user, myStream.id);
-    // let api = await users.endMeeting(postData);
+    let api = await users.endMeeting(postData);
     this.props.navigation.navigate('MeetingList');
   };
 
   render() {
     const {
-      navigation,
       video: {myStream, streams, remoteStreams, users},
     } = this.props;
-    const {meetingId, user} = this.props.route.params;
-    const {mute, video, stream, meetingData} = this.state;
-    console.log(users);
+    const {mute, video, speaker, stream, orientation, meetingData} = this.state;
     return (
       <Block style={styles.parent}>
         <RBSheet
@@ -188,61 +236,18 @@ class MeetingRoom extends Component {
                     ))}
                   </>
                 ) : null}
-                {/* {myStream ? (
-                  <>
-                    <Block style={styles.participants}>
-                      <UserAvatar
-                        isPicture={false}
-                        shape="rounded"
-                        name={getDefaultName(myStream.user)}
-                      />
-                      <Text style={styles.participantsName}>
-                        {getDefaultName(myStream.user)}
-                      </Text>
-                    </Block>
-                  </>
-                ) : null}
-                {streams ? (
-                  <>
-                    {streams.map((item, index) => {
-                      return (
-                        <Block style={styles.participants} key={index}>
-                          <UserAvatar
-                            isPicture={false}
-                            shape="rounded"
-                            name={getDefaultName(item.user.user)}
-                          />
-                          <Text style={styles.participantsName}>
-                            {getDefaultName(item.user.user)}
-                          </Text>
-                        </Block>
-                      );
-                    })}
-                  </>
-                ) : null}
-                {remoteStreams ? (
-                  <>
-                    {remoteStreams.map((item, index) => {
-                      return (
-                        <Block style={styles.participants} key={index}>
-                          <UserAvatar
-                            isPicture={false}
-                            shape="rounded"
-                            name={getDefaultName(item.user.user)}
-                          />
-                          <Text style={styles.participantsName}>
-                            {getDefaultName(item.user.user)}
-                          </Text>
-                        </Block>
-                      );
-                    })}
-                  </>
-                ) : null} */}
               </Block>
             </ScrollView>
           </Block>
         </RBSheet>
         <Block style={styles.child1}>
+          <Feather
+            name={speaker ? 'volume-2' : 'volume-x'}
+            size={23}
+            color="white"
+            style={styles.iconStyle}
+            onPress={this.handleSpeaker}
+          />
           <Ionicons
             name="camera-reverse-sharp"
             size={23}
@@ -265,7 +270,7 @@ class MeetingRoom extends Component {
               <>
                 <RTCView
                   streamURL={myStream.stream.toURL()}
-                  style={styles.mainRtc}
+                  style={[styles.mainRtc, {width:(orientation==='landscape')?responsiveScreenWidth(100):responsiveScreenWidth(100), height:(orientation==='landscape')?responsiveScreenHeight(40):responsiveScreenHeight(40),}]}
                 />
               </>
             ) : null
@@ -281,7 +286,7 @@ class MeetingRoom extends Component {
                       {item.stream._tracks[1].enabled == true ? (
                         <RTCView
                           streamURL={item.stream.toURL()}
-                          style={styles.childRtc}
+                          style={[styles.childRtc, , {width:(orientation==='landscape')?responsiveScreenWidth(100):responsiveScreenWidth(100), height:(orientation==='landscape')?responsiveScreenHeight(20):responsiveScreenHeight(20),}]}
                         />
                       ) : null}
                     </Block>
@@ -442,12 +447,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   mainRtc: {
-    width: '100%',
-    height: 400,
+    width: responsiveScreenWidth(100),
+    height: responsiveScreenHeight(40),
   },
   childRtc: {
-    width: '100%',
-    height: '100%',
+    width: responsiveScreenWidth(100),
+    height: responsiveScreenHeight(20),
   },
 });
 

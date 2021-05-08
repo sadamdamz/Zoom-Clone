@@ -91,7 +91,7 @@ export const endMeeting = (roomId,stream,user,socketId) => async(dispatch) => {
 
   socket.emit('leave-room',{roomId,socketId,user});
   peerServer.destroy()
-  call.close();
+  // call.close();
   dispatch({type:RESET, payload:null})
 
 }
