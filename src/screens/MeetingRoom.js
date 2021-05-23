@@ -1,8 +1,6 @@
 import React, {Component} from 'react';
 import {
-  SafeAreaView,
   StyleSheet,
-  StatusBar,
   ScrollView,
   Dimensions,
   Text,
@@ -10,10 +8,13 @@ import {
   Alert,
   View,
   DeviceEventEmitter,
+  FlatList,
+  StatusBar,
+  SafeAreaView,
 } from 'react-native';
 import {Theme} from '../constants';
 import {Block} from 'galio-framework';
-import {Button} from '../components/index';
+import {Button, Chat} from '../components/index';
 import {mediaDevices, RTCView} from 'react-native-webrtc';
 import {connect} from 'react-redux';
 import {
@@ -21,6 +22,7 @@ import {
   muteAudio,
   muteVideo,
   endMeeting,
+  sendMessage
 } from '../store/action/videoAction';
 import FontAwesome from 'react-native-vector-icons/dist/FontAwesome';
 import FontAwesome5 from 'react-native-vector-icons/dist/FontAwesome5';
@@ -30,12 +32,13 @@ import Entypo from 'react-native-vector-icons/dist/Entypo';
 import {users} from '../axios';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import UserAvatar from 'react-native-user-avatar';
-import {getDefaultName} from '../helper/userData';
+import {getDefaultName, getUserName} from '../helper/userData';
 import InCallManager from 'react-native-incall-manager';
 import {
   responsiveScreenHeight,
   responsiveScreenWidth,
-} from "react-native-responsive-dimensions";
+} from 'react-native-responsive-dimensions';
+import Carousel, {Pagination} from 'react-native-snap-carousel';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -48,38 +51,33 @@ class MeetingRoom extends Component {
       video: true,
       speaker: false,
       meetingData: {},
-      orientation: ''
+      orientation: '',
+      activeIndex: 0,
+      messages: [],
     };
   }
 
-  getOrientation = () =>
-  {
-  console.log('getorientation', this.state.orientation);
-        if( Dimensions.get('window').width < Dimensions.get('window').height )
-        {
-          this.setState({ orientation: 'portrait' });
-        }
-        else
-        {
-          this.setState({ orientation: 'landscape' });
-        }
-  }
+  getOrientation = () => {
+    if (Dimensions.get('window').width < Dimensions.get('window').height) {
+      this.setState({orientation: 'portrait'});
+    } else {
+      this.setState({orientation: 'landscape'});
+    }
+  };
 
   componentDidMount() {
     const {meetingId, user} = this.props.route.params;
     const {mute, video} = this.state;
     this.getOrientation();
+    this.props.sendMessage(meetingId, []);
     this.getMedia(meetingId, user, mute, video);
-    Dimensions.addEventListener( 'change', () =>
-    {
+    Dimensions.addEventListener('change', () => {
       this.getOrientation();
     });
     DeviceEventEmitter.addListener('Proximity', function (data) {
-      console.log('proximity', data);
       // --- do something with events
     });
     DeviceEventEmitter.addListener('WiredHeadset', function (data) {
-      console.log('headphones', data);
       // --- do something with events
     });
     BackHandler.addEventListener('hardwareBackPress', this.backAction);
@@ -87,14 +85,13 @@ class MeetingRoom extends Component {
 
   componentWillUnmount() {
     BackHandler.removeEventListener('hardwareBackPress', this.backAction);
-    InCallManager.stopRingtone();
     InCallManager.stop();
+    InCallManager.setSpeakerphoneOn(false);
   }
 
   switchCam = () => {
     //switch camera
     this.state.stream._tracks[1]._switchCamera();
-    console.log(this.state.stream);
     this.setState({stream: this.state.stream});
   };
 
@@ -107,13 +104,14 @@ class MeetingRoom extends Component {
       },
       {text: 'YES', onPress: () => this.endMeeting()},
     ]);
+    InCallManager.stop();
+    InCallManager.setSpeakerphoneOn(false);
     return true;
   };
 
   getMedia = async (meetingId, user) => {
     let api = await users.getMeetingDetailById(meetingId);
     this.setState({meetingData: api.data});
-    console.log(api.data);
     let isFront = true;
     mediaDevices.enumerateDevices().then((sourceInfos) => {
       let videoSourceId;
@@ -161,7 +159,6 @@ class MeetingRoom extends Component {
     const {speaker} = this.state;
     this.setState({speaker: !speaker}, () => {
       InCallManager.setSpeakerphoneOn(this.state.speaker);
-      console.log('InCallManager', InCallManager);
     });
   };
 
@@ -202,11 +199,131 @@ class MeetingRoom extends Component {
     this.props.navigation.navigate('MeetingList');
   };
 
+  _renderItem = ({item, index}) => {
+    const {
+      video: {myStream},
+    } = this.props;
+    const {orientation} = this.state;
+    let scrHeight = Dimensions.get('window').height;
+    let srcWidth = Dimensions.get('window').width;
+    let itemHeight =
+      orientation === 'landscape' ? scrHeight - 200 : scrHeight - 250;
+    let numColumns = orientation === 'landscape' ? 4 : 2;
+    if (item.data.length <= 2) {
+      numColumns = orientation === 'landscape' ? 2 : 1;
+    }
+
+    return (
+      <View
+        style={{
+          backgroundColor: 'black',
+          borderRadius: 5,
+          height: scrHeight,
+          width: srcWidth,
+          marginVertical: 40,
+        }}
+        key={index}>
+        <FlatList
+          data={item.data}
+          style={{backgroundColor: 'black'}}
+          renderItem={({item, index}) => (
+            <View
+              style={[
+                styles.scrollChilds,
+                {
+                  height:
+                    orientation === 'landscape' ? itemHeight : itemHeight / 2,
+                  width: srcWidth,
+                },
+              ]}
+              key={index}>
+              {item.stream !== null ? (
+                item.stream._tracks[1].enabled == true ? (
+                  <>
+                    <RTCView
+                      objectFit="cover"
+                      streamURL={item.stream.toURL()}
+                      style={[
+                        styles.childRtc,
+                        {
+                          height:
+                            orientation === 'landscape'
+                              ? itemHeight
+                              : itemHeight / 2,
+                          width: srcWidth,
+                        },
+                      ]}
+                    />
+                  </>
+                ) : null
+              ) : null}
+            </View>
+          )}
+          numColumns={numColumns}
+          key={numColumns}
+        />
+      </View>
+    );
+  };
+
+  pagination(list) {
+    const {carouselItems, activeIndex} = this.state;
+    return (
+      <Pagination
+        dotsLength={list.length}
+        activeDotIndex={activeIndex}
+        containerStyle={{backgroundColor: 'rgba(0, 0, 0, 0.75)'}}
+        dotStyle={{
+          width: 10,
+          height: 10,
+          borderRadius: 5,
+          marginHorizontal: 8,
+          backgroundColor: 'rgba(255, 255, 255, 0.92)',
+        }}
+        inactiveDotStyle={
+          {
+            // Define styles for inactive dots here
+          }
+        }
+        inactiveDotOpacity={0.4}
+        inactiveDotScale={0.6}
+      />
+    );
+  }
+
   render() {
     const {
-      video: {myStream, streams, remoteStreams, users},
+      video: {myStream, streams, remoteStreams, allStreams, final, messages, users},
+      sendMessage
     } = this.props;
-    const {mute, video, speaker, stream, orientation, meetingData} = this.state;
+    const {
+      mute,
+      video,
+      speaker,
+      stream,
+      orientation,
+      meetingData,
+    } = this.state;
+    const {user, meetingId} = this.props.route.params;
+    let list = [];
+
+    if (myStream?.stream) {
+      list = [{data: []}];
+      let i = 0;
+      allStreams?.map((item, index) => {
+        console.log('item=======', item);
+        let val = index + 1;
+        let addObj = val % 4;
+        console.log(addObj);
+        if (addObj === 0) {
+          list.push({data: []});
+          i = i + 1;
+        }
+        item['key'] = index.toString();
+        list[i].data.push(item);
+      });
+    }
+
     return (
       <Block style={styles.parent}>
         <RBSheet
@@ -240,6 +357,17 @@ class MeetingRoom extends Component {
             </ScrollView>
           </Block>
         </RBSheet>
+        <RBSheet
+          ref={(ref) => {
+            this.chatSheet = ref;
+          }}
+          height={windowHeight - 20}
+          openDuration={250}
+          customStyles={{}}>
+          <SafeAreaView style={styles.container}>
+            <Chat user={user} sendMessage={sendMessage} roomId={meetingId} messages={messages}/>
+          </SafeAreaView>
+        </RBSheet>
         <Block style={styles.child1}>
           <Feather
             name={speaker ? 'volume-2' : 'volume-x'}
@@ -264,19 +392,61 @@ class MeetingRoom extends Component {
             <Text style={styles.endText}>End</Text>
           </Button>
         </Block>
-        <Block style={styles.child2}>
+        {/* ######################## */}
+        {myStream?.stream ? (
+          <View
+            style={{flex: 12, justifyContent: 'center', position: 'relative'}}>
+            <View style={{flex: 1}}>
+              <Carousel
+                layout={'default'}
+                ref={(ref) => (this.carousel = ref)}
+                data={list}
+                sliderWidth={windowWidth}
+                itemWidth={1000}
+                renderItem={this._renderItem}
+                onSnapToItem={(index) => this.setState({activeIndex: index})}
+              />
+            </View>
+            <View
+              style={{
+                height: 70,
+                position: 'absolute',
+                bottom: 0,
+                right: 0,
+                left: 0,
+              }}>
+              {this.pagination(list)}
+            </View>
+          </View>
+        ) : null}
+
+        {/* ######################## */}
+
+        {/* <Block style={styles.child2}>
           {myStream ? (
             myStream.stream._tracks[1].enabled == true ? (
               <>
                 <RTCView
                   streamURL={myStream.stream.toURL()}
-                  style={[styles.mainRtc, {width:(orientation==='landscape')?responsiveScreenWidth(100):responsiveScreenWidth(100), height:(orientation==='landscape')?responsiveScreenHeight(40):responsiveScreenHeight(40),}]}
+                  style={[
+                    styles.mainRtc,
+                    {
+                      width:
+                        orientation === 'landscape'
+                          ? responsiveScreenWidth(100)
+                          : responsiveScreenWidth(100),
+                      height:
+                        orientation === 'landscape'
+                          ? responsiveScreenHeight(40)
+                          : responsiveScreenHeight(40),
+                    },
+                  ]}
                 />
               </>
             ) : null
           ) : null}
-        </Block>
-        <Block style={styles.child3}>
+        </Block> */}
+        {/* <Block style={styles.child3}>
           <ScrollView horizontal={true}>
             {streams.length > 0 ? (
               <>
@@ -286,7 +456,20 @@ class MeetingRoom extends Component {
                       {item.stream._tracks[1].enabled == true ? (
                         <RTCView
                           streamURL={item.stream.toURL()}
-                          style={[styles.childRtc, , {width:(orientation==='landscape')?responsiveScreenWidth(100):responsiveScreenWidth(100), height:(orientation==='landscape')?responsiveScreenHeight(20):responsiveScreenHeight(20),}]}
+                          style={[
+                            styles.childRtc,
+                            ,
+                            {
+                              width:
+                                orientation === 'landscape'
+                                  ? responsiveScreenWidth(100)
+                                  : responsiveScreenWidth(100),
+                              height:
+                                orientation === 'landscape'
+                                  ? responsiveScreenHeight(20)
+                                  : responsiveScreenHeight(20),
+                            },
+                          ]}
                         />
                       ) : null}
                     </Block>
@@ -311,7 +494,7 @@ class MeetingRoom extends Component {
               </>
             ) : null}
           </ScrollView>
-        </Block>
+        </Block> */}
         <Block style={styles.child4}>
           <Block>
             <FontAwesome
@@ -355,6 +538,7 @@ class MeetingRoom extends Component {
               size={23}
               color="white"
               style={styles.iconStyle}
+              onPress={() => this.chatSheet.open()}
             />
             <Text style={styles.iconTxt}>Chat</Text>
           </Block>
@@ -367,6 +551,13 @@ class MeetingRoom extends Component {
 const mapStateToProps = ({video}) => ({video});
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: StatusBar.currentHeight,
+  },
+  scrollView: {
+    width: windowWidth,
+  },
   topic: {
     color: 'white',
   },
@@ -439,20 +630,20 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   scrollChilds: {
-    height: '100%',
-    width: 200,
-    borderColor: 'white',
-    borderWidth: 1,
+    // height: 200,
+    // width: 300,
+    // borderColor: 'white',
+    // borderWidth: 1,
     flex: 1,
-    alignItems: 'center',
+    // alignItems: 'center',
   },
   mainRtc: {
     width: responsiveScreenWidth(100),
     height: responsiveScreenHeight(40),
   },
   childRtc: {
-    width: responsiveScreenWidth(100),
-    height: responsiveScreenHeight(20),
+    // width: responsiveScreenWidth(100),
+    // height: responsiveScreenHeight(20),
   },
 });
 
@@ -461,4 +652,5 @@ export default connect(mapStateToProps, {
   muteAudio,
   muteVideo,
   endMeeting,
+  sendMessage,
 })(MeetingRoom);

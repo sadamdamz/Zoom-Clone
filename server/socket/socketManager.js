@@ -6,8 +6,6 @@ let users = {};
 const socketToRoom = {};
 
 module.exports = function (socket) {
-  console.log('socket connected', socket.id);
-
   // Join Room Event
   socket.on('join-room', ({peerID, roomId, user}) => {
     let socketId = socket.id;
@@ -22,7 +20,6 @@ module.exports = function (socket) {
     } else {
       users[roomId] = [user];
     }
-    console.log(users[roomId],peerID, roomId, user,'rooms join rooms');
     socket.emit('new-user',{users:users[roomId]});
     socket.to(roomId).emit('new-user',{users:users[roomId]});
     socket.join(roomId);
@@ -46,7 +43,6 @@ module.exports = function (socket) {
         return item.uid !== user.uid;
       });
     } else {
-      console.log('nothing need to remove');
       return;
     }
     const meetingId = roomId;
@@ -61,15 +57,18 @@ module.exports = function (socket) {
       });
       if (dbusers.length == 0) {
         await db.ref('meetings/' + meetingId).remove();
-        console.log(`meetingId:${meetingId} Ended Successfully`);
       } else {
         await db.ref('meetings/' + meetingId).set({host: true, users: dbusers});
-        console.log(`user removed from the meeting ${meetingId}`);
       }
     } catch (error) {
       console.log(error);
     }
   });
+
+  socket.on('send-message', ({roomId, message}) => {
+    console.log('socket message====>', roomId, message);
+    socket.to(roomId).broadcast.emit('recieve-message',{message});
+  })
 
 
 //socket disconnecting event
@@ -86,7 +85,6 @@ module.exports = function (socket) {
           return item.socketId !== socketId;
         });
       } else {
-        console.log('nothing need to remove');
         return;
       }
       socket.to(roomId).emit('new-user',{users:users[roomId]});
@@ -95,7 +93,6 @@ module.exports = function (socket) {
   });
 
   socket.on('disconnect', () => {
-    console.log('simple disconnect', socket.id);
     // socket.rooms.size === 0
   });
 };

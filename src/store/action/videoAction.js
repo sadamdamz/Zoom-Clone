@@ -1,4 +1,4 @@
-import { JOIN_CHAT, ADD_STREAM, MY_STREAM, ADD_REMOTE_STREAM, REMOVE_STREAM, ADD_USERS, RESET } from './types';
+import { JOIN_CHAT, ADD_STREAM, MY_STREAM, ADD_REMOTE_STREAM, REMOVE_STREAM, ADD_USERS, SEND_MESSAGE, RESET } from './types';
 import IO from 'socket.io-client';
 import Peer from 'react-native-peerjs'
 import { Constant } from '../../constants';
@@ -20,7 +20,6 @@ export const socket = IO(`${API_URL}`,{
   forceNew: false,
 })
 
-
 socket.on('connection',()=>{
   console.log('client connected');
 })
@@ -28,10 +27,20 @@ socket.on('connection',()=>{
 let peerServer = null;
 let call = null;
 
+export const sendMessage = (roomId, message) => async(dispatch) => {
+  socket.emit('send-message', {roomId, message});
+  dispatch({type:SEND_MESSAGE,payload:message});
+  console.log('message recieved=========>', message)
+}
+
 export const joinRoom = (stream, meetingId, user) => async(dispatch) => {
   peerServer = peer()
   const roomId = meetingId;
   dispatch({type:MY_STREAM, payload:{stream:stream,id:socket.id,user:user}});
+
+  socket.on('recieve-message', ({message}) => {
+    dispatch({type:SEND_MESSAGE, payload:message});
+  })
 
   //connection to server
   peerServer.on('open',(peerID)=>{

@@ -4,4 +4,5 @@ export const MY_STREAM = "MY_STREAM";
 export const ADD_REMOTE_STREAM = "ADD_REMOTE_STREAM";
 export const REMOVE_STREAM = "REMOVE_STREAM";
 export const ADD_USERS = "ADD_USERS";
+export const SEND_MESSAGE = "SEND_MESSAGE";
 export const RESET = "RESET";

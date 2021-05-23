@@ -26,7 +26,17 @@ const getDefaultName = (user) => {
   return name;
 }
 
+const getUserAvartar = (user) => {
+  let url = user?.photoURL;
+  if(url){
+    return url
+  }else{
+    return null
+  }
+}
+
 export {
   getUserName,
-  getDefaultName
+  getDefaultName,
+  getUserAvartar
 }
