@@ -58,14 +58,16 @@ class MeetingRoom extends Component {
       messages: [],
       appStateVisible: this.appState.current,
       refreshFlatList: false,
+      height: Dimensions.get('window').height,
+      width: Dimensions.get('window').width,
     };
   }
 
   getOrientation = () => {
     if (Dimensions.get('window').width < Dimensions.get('window').height) {
-      this.setState({orientation: 'portrait'});
+      this.setState({orientation: 'portrait', height:Dimensions.get('window').height, width: Dimensions.get('window').width});
     } else {
-      this.setState({orientation: 'landscape'});
+      this.setState({orientation: 'landscape', height:Dimensions.get('window').height, width: Dimensions.get('window').width});
     }
   };
 
@@ -91,6 +93,7 @@ class MeetingRoom extends Component {
   componentWillUnmount() {
     AppState.removeEventListener("change", this._handleAppStateChange);
     BackHandler.removeEventListener('hardwareBackPress', this.backAction);
+    Dimensions.removeEventListener('change',this.getOrientation);
     InCallManager.stop();
     InCallManager.setSpeakerphoneOn(false);
   }
@@ -219,12 +222,9 @@ class MeetingRoom extends Component {
   };
 
   _renderItem = ({item, index}) => {
-    const {
-      video: {myStream},
-    } = this.props;
-    const {orientation} = this.state;
-    let scrHeight = Dimensions.get('window').height;
-    let srcWidth = Dimensions.get('window').width;
+    const {orientation, height, width} = this.state;
+    let scrHeight = height;
+    let srcWidth = width;
     let itemHeight =
       orientation === 'landscape' ? scrHeight - 200 : scrHeight - 250;
     let numColumns = orientation === 'landscape' ? 4 : 2;
@@ -232,32 +232,33 @@ class MeetingRoom extends Component {
       numColumns = orientation === 'landscape' ? 2 : 1;
     }
 
-    console.log('This is rendered item list=====>', item);
+    console.log('items height and width=======>', itemHeight, srcWidth, numColumns, item);
 
     return (
       <View
         style={{
           backgroundColor: 'black',
           borderRadius: 5,
-          height: scrHeight,
-          width: srcWidth,
+          height: itemHeight,
+          width: width,
           marginVertical: 40,
         }}
         key={index}>
+
         <FlatList
           data={item.data}
           style={{backgroundColor: 'black'}}
+          extraData={orientation}
+          numColumns={numColumns}
+          key={numColumns}
           renderItem={({item, index}) => 
-          {
-            console.log('this is the flatlistData=====>', item)
-            return(
             <View
               style={[
                 styles.scrollChilds,
                 {
                   height:
                     orientation === 'landscape' ? itemHeight : itemHeight / 2,
-                  width: srcWidth,
+                    alignSelf: 'stretch',
                 },
               ]}
               key={index}>
@@ -269,21 +270,16 @@ class MeetingRoom extends Component {
                       style={[
                         styles.childRtc,
                         {
-                          height:
-                            orientation === 'landscape'
-                              ? itemHeight
-                              : itemHeight / 2,
-                          width: srcWidth,
+                          height: '100%',
+                          alignSelf: 'stretch',
                         },
                       ]}
                     />
                   </>):null}
             </View>
-          )}}
-          numColumns={numColumns}
-          key={numColumns}
+          }
         />
-      </View>
+       </View>
     );
   };
 
@@ -311,6 +307,10 @@ class MeetingRoom extends Component {
       />
     );
   }
+
+  closeChat = () => {
+    this.chatSheet.close()
+  }
   
 
   render() {
@@ -326,6 +326,7 @@ class MeetingRoom extends Component {
       orientation,
       meetingData,
       appStateVisible,
+      width
     } = this.state;
     const {user, meetingId} = this.props.route.params;
     let list = [];
@@ -334,9 +335,9 @@ class MeetingRoom extends Component {
       list = [{data: []}];
       let i = 0;
       helper?.map((item, index) => {
-        let val = index + 1;
+        let val = index;
         let addObj = val % 4;
-        if (addObj === 0) {
+        if (addObj === 0 && val!==0) {
           list.push({data: []});
           i = i + 1;
         }
@@ -349,11 +350,6 @@ class MeetingRoom extends Component {
         list[i].data.push(item);
       });
     }
-    // if(connectionLost===true){
-    //   this.showLostConnection()
-    // }
-    console.log('rendering once again', this.props)
-    console.log('this is the list of streams', list, helper);
     return (
       <Block style={styles.parent}>
         {connectionLost===true && this.showLostConnection()}
@@ -396,7 +392,7 @@ class MeetingRoom extends Component {
           openDuration={250}
           customStyles={{}}>
           <SafeAreaView style={styles.container}>
-            <Chat user={user} sendMessage={sendMessage} roomId={meetingId} messages={messages}/>
+            <Chat user={user} sendMessage={sendMessage} roomId={meetingId} messages={messages} onClose={this.closeChat}/>
           </SafeAreaView>
         </RBSheet>
         <Block style={styles.child1}>
@@ -432,7 +428,7 @@ class MeetingRoom extends Component {
                 layout={'default'}
                 ref={(ref) => (this.carousel = ref)}
                 data={list}
-                sliderWidth={windowWidth}
+                sliderWidth={width}
                 itemWidth={1000}
                 renderItem={this._renderItem}
                 onSnapToItem={(index) => this.setState({activeIndex: index})}

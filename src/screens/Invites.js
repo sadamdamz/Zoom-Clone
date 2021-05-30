@@ -5,6 +5,7 @@ import {
   TextInput,
   SafeAreaView,
   ScrollView,
+  Dimensions
 } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {Block} from 'galio-framework';
@@ -17,13 +18,17 @@ import * as AddCalendarEvent from 'react-native-add-calendar-event';
 import moment from 'moment';
 import Spinner from 'react-native-loading-spinner-overlay';
 
+const windowHeight = Dimensions.get('window').height;
+
 const invites = (props) => {
   const [meetingId, setMeetingId] = useState(null);
   const [spinner, setSpinner] = useState(true);
   const [fields, setFields] = useState({
     duration: '1',
     topic: 'Conference Call',
+    timeZone: '+05:50'
   });
+  const [timeZoneValues, setTimeZone] = useState([]);
   const [loading, setLoading] = useState(false);
   const [datePicker, setDatePicker] = useState(false);
   const [timePicker, setTimePicker] = useState(false);
@@ -44,8 +49,10 @@ const invites = (props) => {
       uid: user._user.uid,
     };
     let api = await users.getMeetingId(postData);
+    let timeZones = await users.getTimeZones();
     setMeetingId(api.meetingId);
     setSpinner(false);
+    console.log(timeZones);
   };
 
   const addToCalendar = () => {
@@ -113,12 +120,16 @@ const invites = (props) => {
     console.log(meetingId);
     setSpinner(true);
     let field = fields;
+    let gmt = Constant.TimeZones.filter(item => {
+      return item.value === fields.timeZone;
+    })
     field['momentDate'] = date;
     field['date'] = moment(date).format('MMMM Do YYYY');
     field['time'] = moment(time).format('LT');
     field['userName'] = getUserName(user);
     field['mailTo'] = items;
     field['uid'] = user._user.uid;
+    field['gmt'] = gmt
     console.log(field);
     let api = await users.scheduleMeeting(field);
     navigation.navigate('MeetingList');
@@ -159,6 +170,7 @@ const invites = (props) => {
         onConfirm={handleTime}
         onCancel={hideTimePicker}
       />
+      <ScrollView>
       <Block style={styles.parent}>
         <Block style={styles.children1}>
           <Block>
@@ -202,6 +214,23 @@ const invites = (props) => {
               style={styles.input}
             />
           </Block>
+          <Block style={styles.child}>
+            <Text style={styles.txt}>Time Zone</Text>
+            <DropDownPicker
+              items={Constant.TimeZones}
+              defaultValue={fields.timeZone}
+              containerStyle={{height: 70}}
+              style={{backgroundColor: '#fafafa'}}
+              itemStyle={{
+                justifyContent: 'flex-start',
+              }}
+              dropDownStyle={{backgroundColor: '#fafafa', height:200, zIndex:2}}
+              onChangeItem={(item) =>
+                setFields({...fields, timeZone: item.value})
+              }
+              style={styles.input}
+            />
+          </Block>
           <Block style={{...styles.addParticipants,...styles.child}}>
             <Block>
             <TextInput
@@ -213,7 +242,7 @@ const invites = (props) => {
             />
             </Block>
             <Block>
-            <Button style={styles.addBtn} onPress={()=>handleSubmit()}><Text style={styles.addBtnTxt}>Add</Text></Button>
+            <Block style={styles.addBtn} onPress={()=>handleSubmit()}><Text style={styles.addBtnTxt}>+</Text></Block>
             </Block>
           </Block>
           {items.length > 0 ? (
@@ -238,6 +267,7 @@ const invites = (props) => {
           ) : null}
         </Block>
       </Block>
+      </ScrollView>
       <Block style={styles.btnContainer}>
         <Button style={styles.sendBtn} onPress={() => handleStartMeeting()}>
           <Text style={styles.sendTxt}>Start Now</Text>
@@ -265,9 +295,16 @@ const styles = StyleSheet.create({
     height:30,
     padding:0,
     backgroundColor: Theme.COLORS.BLUE,
+    textAlign:'center',
+    borderRadius:3,
+    alignItems:'center',
+    marginLeft: 10
   },
   addBtnTxt: {
+    flex:1,
     color: Theme.COLORS.WHITE,
+    textAlign:'center',
+    alignItems:'center'
   },
   addInput: {
     width: 300,
@@ -281,10 +318,11 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   parent: {
-    flex: 5,
+    flex: 8,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
+    height:windowHeight-200,
   },
   children1: {
     flex: 4,
@@ -306,7 +344,7 @@ const styles = StyleSheet.create({
   input: {
     width: 200,
     borderWidth: 1,
-    height: 30,
+    height: 40,
     padding: 7,
     borderColor: Theme.COLORS.GRAYBACKGROUND,
     borderRadius: 5,
@@ -346,7 +384,6 @@ const styles = StyleSheet.create({
   addParticipants: {
     // flex:1,
     flexDirection:'column',
-    marginTop: 30,
     marginBottom: 10,
   },
 });

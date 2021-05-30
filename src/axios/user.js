@@ -4,16 +4,22 @@ import { Constant } from '../constants/index';
 
 const API_URL = Constant.endPoints.API_URL;
 
-// const API_URL = 'http://192.168.0.103:5000';
-
-// const API_URL = `http://139.59.34.203:5000`;
-
 
 const getMeetingList = async(postData) => {
   try {
     let api = await axios.post(`${API_URL}/api/v1/getMeetingList`,postData);
     let response = await api.data;
     return response;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+const getTimeZones = async() => {
+  try {
+    let api = await axios.get(`http://api.timezonedb.com/v2.1/list-time-zone?key=UK16MNB2WVFJ&format=json`);
+    let response = await api.data.zones;
+    return response
   } catch (error) {
     console.log(error);
   }
@@ -109,5 +115,6 @@ export default {
   endMeeting,
   scheduleMeeting,
   getMeetingList,
-  getInviteDetails
+  getInviteDetails,
+  getTimeZones
 }

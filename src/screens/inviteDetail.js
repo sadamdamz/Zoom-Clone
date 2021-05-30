@@ -4,6 +4,8 @@ import {
   StyleSheet,
   ToastAndroid,
   SafeAreaView,
+  ScrollView,
+  Dimensions
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import {Block} from 'galio-framework';
@@ -12,6 +14,8 @@ import {Input, Button} from '../components';
 import {users} from '../axios';
 import Spinner from 'react-native-loading-spinner-overlay';
 import {getUserName} from '../helper/userData';
+
+const windowHeight = Dimensions.get('window').height;
 
 const inviteDetail = (props) => {
   const [params, setParams] = useState(props.route.params);
@@ -40,7 +44,7 @@ const inviteDetail = (props) => {
   };
 
   const copyToClipboard = () => {
-    Clipboard.setString(`${getUserName(user)} is inviting you to Zoom Meeting \n\n Topic: ${data['topic']} \n\n Scheduled Date: ${data['date']} \n\n Scheduled Time: ${data['time']} \n\n MeetingId: ${data['meetingId']} \n\n Link: https://wedgrab.com/meetingroom/${data['meetingId']} \n\n `,);
+    Clipboard.setString(`${getUserName(user)} is inviting you to Zoom Meeting \n\n Topic: ${data['topic']} \n\n Scheduled Date: ${data['date']} \n\n Scheduled Time: ${data['time']} \n\n Time Zone: ${data.gmt[0].label} \n\n MeetingId: ${data['meetingId']} \n\n Link: https://wedgrab.com/meetingroom/${data['meetingId']} \n\n `,);
     ToastAndroid.show("Link Copied", ToastAndroid.SHORT);
   };
 
@@ -68,6 +72,7 @@ const inviteDetail = (props) => {
       />
       {spinner ? null : (
         <>
+        <ScrollView>
           <Block style={styles.parent}>
             <Block style={styles.children1}>
               <Block style={styles.child}>
@@ -87,6 +92,10 @@ const inviteDetail = (props) => {
                 <Text style={styles.detailTxt}>{duration}</Text>
               </Block>
               <Block style={styles.child}>
+                <Text style={styles.txt}>Time Zone</Text>
+                <Text style={styles.detailTxt}>{data.gmt[0].label}</Text>
+              </Block>
+              <Block style={styles.child}>
                 <Text style={styles.txt}>MeetingId</Text>
                 <Text style={styles.detailTxt}>{data['meetingId']}</Text>
               </Block>
@@ -96,6 +105,7 @@ const inviteDetail = (props) => {
               </Block>
             </Block>
           </Block>
+          </ScrollView>
           {
             params.show?(
               <Block style={styles.btnContainer}>
@@ -135,13 +145,15 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   parent: {
-    flex: 5,
+    flex: 8,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
+    height:windowHeight-200,
+    paddingTop: 20,
   },
   children1: {
-    flex: 4,
+    flex: 7,
     flexDirection: 'column',
     alignItems: 'center',
   },
@@ -152,19 +164,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 10,
+    height: 60,
   },
   txt: {
     width: 100,
     fontWeight: '700',
+    height: 80
   },
   detailTxt: {
     width: 200,
     // borderWidth: 1,
-    height: 40,
+    height: 80,
     padding: 7,
-  },
-  linkTxt: {
-    height: 60
   },
   headTxt: {
     fontWeight: '700',
