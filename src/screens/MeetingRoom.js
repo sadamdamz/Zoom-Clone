@@ -11,6 +11,7 @@ import {
   FlatList,
   StatusBar,
   SafeAreaView,
+  AppState,
 } from 'react-native';
 import {Theme} from '../constants';
 import {Block} from 'galio-framework';
@@ -46,6 +47,7 @@ const windowHeight = Dimensions.get('window').height;
 class MeetingRoom extends Component {
   constructor(props) {
     super(props);
+    this.appState = AppState.currentState;
     this.state = {
       mute: true,
       video: true,
@@ -54,6 +56,8 @@ class MeetingRoom extends Component {
       orientation: '',
       activeIndex: 0,
       messages: [],
+      appStateVisible: this.appState.current,
+      refreshFlatList: false,
     };
   }
 
@@ -69,11 +73,12 @@ class MeetingRoom extends Component {
     const {meetingId, user} = this.props.route.params;
     const {mute, video} = this.state;
     this.getOrientation();
-    this.props.sendMessage(meetingId, []);
     this.getMedia(meetingId, user, mute, video);
+    this.props.sendMessage(meetingId, []);
     Dimensions.addEventListener('change', () => {
       this.getOrientation();
     });
+    AppState.addEventListener("change", this._handleAppStateChange);
     DeviceEventEmitter.addListener('Proximity', function (data) {
       // --- do something with events
     });
@@ -84,10 +89,19 @@ class MeetingRoom extends Component {
   }
 
   componentWillUnmount() {
+    AppState.removeEventListener("change", this._handleAppStateChange);
     BackHandler.removeEventListener('hardwareBackPress', this.backAction);
     InCallManager.stop();
     InCallManager.setSpeakerphoneOn(false);
   }
+
+  _handleAppStateChange = (nextAppState) => {
+    if (
+      nextAppState === "active"
+    ) {
+    }
+    this.setState({appStateVisible: nextAppState});
+  };
 
   switchCam = () => {
     //switch camera
@@ -104,10 +118,15 @@ class MeetingRoom extends Component {
       },
       {text: 'YES', onPress: () => this.endMeeting()},
     ]);
-    InCallManager.stop();
-    InCallManager.setSpeakerphoneOn(false);
     return true;
   };
+
+  showLostConnection = () => {
+    Alert.alert('Network Failed', 'you Lost your Connection', [
+      {text: 'Ok', onPress: () => this.endMeeting()},
+    ]);
+    return true;
+  }
 
   getMedia = async (meetingId, user) => {
     let api = await users.getMeetingDetailById(meetingId);
@@ -148,7 +167,6 @@ class MeetingRoom extends Component {
 
   setStream = (stream) => {
     this.setState({stream});
-    // InCallManager.start({media: 'audio', ringback: '_BUNDLE_'});
     InCallManager.start({media: 'audio'});
     InCallManager.setSpeakerphoneOn(false);
     InCallManager.setKeepScreenOn(true);
@@ -177,11 +195,12 @@ class MeetingRoom extends Component {
   };
 
   muteCamera = () => {
-    const {meetingId, user} = this.props.route.params;
+    const {meetingId, user,} = this.props.route.params;
+    const {video:{myStream}} = this.props;
     const {video} = this.state;
-    this.state.stream._tracks[1].enabled = !video;
-    this.setState({video: !video, stream: this.state.stream});
-    this.props.muteVideo(this.state.stream, user);
+    myStream.stream._tracks[1].enabled = !video;
+    this.setState({video: !video, stream: myStream});
+    this.props.muteVideo(myStream, user);
   };
 
   endMeeting = async () => {
@@ -213,6 +232,8 @@ class MeetingRoom extends Component {
       numColumns = orientation === 'landscape' ? 2 : 1;
     }
 
+    console.log('This is rendered item list=====>', item);
+
     return (
       <View
         style={{
@@ -226,7 +247,10 @@ class MeetingRoom extends Component {
         <FlatList
           data={item.data}
           style={{backgroundColor: 'black'}}
-          renderItem={({item, index}) => (
+          renderItem={({item, index}) => 
+          {
+            console.log('this is the flatlistData=====>', item)
+            return(
             <View
               style={[
                 styles.scrollChilds,
@@ -237,12 +261,11 @@ class MeetingRoom extends Component {
                 },
               ]}
               key={index}>
-              {item.stream !== null ? (
-                item.stream._tracks[1].enabled == true ? (
+              {item.stream !== null ? ( 
                   <>
                     <RTCView
                       objectFit="cover"
-                      streamURL={item.stream.toURL()}
+                      streamURL={item.cam === true?item.stream.toURL():''}
                       style={[
                         styles.childRtc,
                         {
@@ -254,11 +277,9 @@ class MeetingRoom extends Component {
                         },
                       ]}
                     />
-                  </>
-                ) : null
-              ) : null}
+                  </>):null}
             </View>
-          )}
+          )}}
           numColumns={numColumns}
           key={numColumns}
         />
@@ -290,10 +311,11 @@ class MeetingRoom extends Component {
       />
     );
   }
+  
 
   render() {
     const {
-      video: {myStream, streams, remoteStreams, allStreams, final, messages, users},
+      video: {myStream, streams, remoteStreams, allStreams, final, messages, connectionLost, users},
       sendMessage
     } = this.props;
     const {
@@ -303,29 +325,38 @@ class MeetingRoom extends Component {
       stream,
       orientation,
       meetingData,
+      appStateVisible,
     } = this.state;
     const {user, meetingId} = this.props.route.params;
     let list = [];
-
-    if (myStream?.stream) {
+    let helper = [myStream,...streams,...remoteStreams]
+    if (myStream) {
       list = [{data: []}];
       let i = 0;
-      allStreams?.map((item, index) => {
-        console.log('item=======', item);
+      helper?.map((item, index) => {
         let val = index + 1;
         let addObj = val % 4;
-        console.log(addObj);
         if (addObj === 0) {
           list.push({data: []});
           i = i + 1;
         }
         item['key'] = index.toString();
+        if(item.stream?._tracks[1].enabled){
+          item['cam'] = true
+        }else{
+          item['cam'] = false
+        }
         list[i].data.push(item);
       });
     }
-
+    // if(connectionLost===true){
+    //   this.showLostConnection()
+    // }
+    console.log('rendering once again', this.props)
+    console.log('this is the list of streams', list, helper);
     return (
       <Block style={styles.parent}>
+        {connectionLost===true && this.showLostConnection()}
         <RBSheet
           ref={(ref) => {
             this.RBSheet = ref;
