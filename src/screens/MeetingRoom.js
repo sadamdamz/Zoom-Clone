@@ -33,7 +33,7 @@ import Entypo from 'react-native-vector-icons/dist/Entypo';
 import {users} from '../axios';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import UserAvatar from 'react-native-user-avatar';
-import {getDefaultName, getUserName} from '../helper/userData';
+import {getDefaultName, getUserAvartar} from '../helper/userData';
 import InCallManager from 'react-native-incall-manager';
 import {
   responsiveScreenHeight,
@@ -226,7 +226,7 @@ class MeetingRoom extends Component {
     let scrHeight = height;
     let srcWidth = width;
     let itemHeight =
-      orientation === 'landscape' ? scrHeight - 200 : scrHeight - 250;
+      orientation === 'landscape' ? scrHeight - 150 : scrHeight - 180;
     let numColumns = orientation === 'landscape' ? 4 : 2;
     if (item.data.length <= 2) {
       numColumns = orientation === 'landscape' ? 2 : 1;
@@ -270,7 +270,7 @@ class MeetingRoom extends Component {
                       style={[
                         styles.childRtc,
                         {
-                          height: '100%',
+                          height: orientation === 'landscape' ? itemHeight : itemHeight / 2,
                           alignSelf: 'stretch',
                         },
                       ]}
@@ -289,7 +289,7 @@ class MeetingRoom extends Component {
       <Pagination
         dotsLength={list.length}
         activeDotIndex={activeIndex}
-        containerStyle={{backgroundColor: 'rgba(0, 0, 0, 0.75)'}}
+        // containerStyle={{backgroundColor: 'rgba(0, 0, 0, 0.75)'}}
         dotStyle={{
           width: 10,
           height: 10,
@@ -326,7 +326,8 @@ class MeetingRoom extends Component {
       orientation,
       meetingData,
       appStateVisible,
-      width
+      width,
+      height
     } = this.state;
     const {user, meetingId} = this.props.route.params;
     let list = [];
@@ -351,8 +352,9 @@ class MeetingRoom extends Component {
       });
     }
     return (
-      <Block style={styles.parent}>
-        {connectionLost===true && this.showLostConnection()}
+      <Block style={[styles.parent, {height:height * 0.5}]}>
+        <StatusBar hidden />
+        {/* {connectionLost===true && this.showLostConnection()} */}
         <RBSheet
           ref={(ref) => {
             this.RBSheet = ref;
@@ -388,14 +390,14 @@ class MeetingRoom extends Component {
           ref={(ref) => {
             this.chatSheet = ref;
           }}
-          height={windowHeight - 20}
+          height={height - 20}
           openDuration={250}
           customStyles={{}}>
           <SafeAreaView style={styles.container}>
             <Chat user={user} sendMessage={sendMessage} roomId={meetingId} messages={messages} onClose={this.closeChat}/>
           </SafeAreaView>
         </RBSheet>
-        <Block style={styles.child1}>
+        <Block style={[styles.child1, {marginTop:orientation==='landscape'?13:0}]}>
           <Feather
             name={speaker ? 'volume-2' : 'volume-x'}
             size={23}
@@ -422,8 +424,8 @@ class MeetingRoom extends Component {
         {/* ######################## */}
         {myStream?.stream ? (
           <View
-            style={{flex: 12, justifyContent: 'center', position: 'relative'}}>
-            <View style={{flex: 1}}>
+            style={{flex: 9, justifyContent: 'center', position: 'relative'}}>
+            <View style={{flex: 4}}>
               <Carousel
                 layout={'default'}
                 ref={(ref) => (this.carousel = ref)}
@@ -447,82 +449,7 @@ class MeetingRoom extends Component {
           </View>
         ) : null}
 
-        {/* ######################## */}
-
-        {/* <Block style={styles.child2}>
-          {myStream ? (
-            myStream.stream._tracks[1].enabled == true ? (
-              <>
-                <RTCView
-                  streamURL={myStream.stream.toURL()}
-                  style={[
-                    styles.mainRtc,
-                    {
-                      width:
-                        orientation === 'landscape'
-                          ? responsiveScreenWidth(100)
-                          : responsiveScreenWidth(100),
-                      height:
-                        orientation === 'landscape'
-                          ? responsiveScreenHeight(40)
-                          : responsiveScreenHeight(40),
-                    },
-                  ]}
-                />
-              </>
-            ) : null
-          ) : null}
-        </Block> */}
-        {/* <Block style={styles.child3}>
-          <ScrollView horizontal={true}>
-            {streams.length > 0 ? (
-              <>
-                {streams.map((item, index) => {
-                  return (
-                    <Block style={styles.scrollChilds} key={index}>
-                      {item.stream._tracks[1].enabled == true ? (
-                        <RTCView
-                          streamURL={item.stream.toURL()}
-                          style={[
-                            styles.childRtc,
-                            ,
-                            {
-                              width:
-                                orientation === 'landscape'
-                                  ? responsiveScreenWidth(100)
-                                  : responsiveScreenWidth(100),
-                              height:
-                                orientation === 'landscape'
-                                  ? responsiveScreenHeight(20)
-                                  : responsiveScreenHeight(20),
-                            },
-                          ]}
-                        />
-                      ) : null}
-                    </Block>
-                  );
-                })}
-              </>
-            ) : null}
-            {remoteStreams.length > 0 ? (
-              <>
-                {remoteStreams.map((item, index) => {
-                  return (
-                    <Block style={styles.scrollChilds} key={index}>
-                      {item.stream._tracks[1].enabled == true ? (
-                        <RTCView
-                          streamURL={item.stream.toURL()}
-                          style={styles.childRtc}
-                        />
-                      ) : null}
-                    </Block>
-                  );
-                })}
-              </>
-            ) : null}
-          </ScrollView>
-        </Block> */}
-        <Block style={styles.child4}>
+        <Block style={[styles.child4, {marginBottom:orientation==='landscape'?20:0, marginTop: orientation==='landscape'?-30:-10}]}>
           <Block>
             <FontAwesome
               name={mute ? 'microphone' : 'microphone-slash'}
@@ -610,7 +537,7 @@ const styles = StyleSheet.create({
   },
   parent: {
     flex: 1,
-    height: windowHeight * 0.5,
+    // height: windowHeight * 0.5,
     backgroundColor: 'black',
   },
   child1: {
@@ -620,14 +547,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingLeft: 20,
     paddingRight: 20,
-  },
-  child2: {
-    flex: 5,
-    justifyContent: 'center',
-  },
-  child3: {
-    flex: 2,
-    alignItems: 'center',
+    marginBottom: -30
   },
   child4: {
     flex: 1,
