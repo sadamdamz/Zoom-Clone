@@ -75,7 +75,7 @@ export default (state=initialState, {type, payload}) => {
     case CONNECTION_LOST:
       return {
         ...state,
-        connectionLost: payload
+        connectionLost: true
       }
     case RESET:
       return {

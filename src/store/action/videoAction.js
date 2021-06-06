@@ -34,11 +34,16 @@ export const sendMessage = (roomId, message) => async(dispatch) => {
   console.log('message recieved=========>', message)
 }
 
+export const makeSocketAlive = () => async(dispatch) => {
+  socket.emit('online');
+}
+
 export const joinRoom = (stream, meetingId, user) => async(dispatch) => {
   peerServer = peer()
   const roomId = meetingId;
   const remoteUser = user;
   const remoteSocketId = socket.id
+  let remotePeerID;
   dispatch({type:MY_STREAM, payload:{stream:stream,id:remoteSocketId,user:user}});
 
   socket.on('recieve-message', ({message}) => {
@@ -47,12 +52,15 @@ export const joinRoom = (stream, meetingId, user) => async(dispatch) => {
 
   //connection to server
   peerServer.on('open',(peerID)=>{
+    remotePeerID = peerID;
     socket.emit('join-room', {peerID, roomId, user})
   })
 
   peerServer.on('disconnected', () => {
     console.log('peerServer Disconnected')
-    dispatch({type:CONNECTION_LOST, payload:true})
+    socket.emit('join-room', {remotePeerID, roomId, user})
+    // dispatch({type:CONNECTION_LOST, payload:true})
+    // return true
   })
 
   peerServer.on('error', (err) => {
@@ -84,7 +92,7 @@ export const joinRoom = (stream, meetingId, user) => async(dispatch) => {
     //stream back the call
     call.on('stream', (stream)=>{
       console.log('This is the Add Streams ====>', stream)
-      dispatch({type:ADD_STREAM, payload:{stream:stream,id:call.metadata.socketId,user:call.metadata}})
+      dispatch({type:ADD_STREAM, payload:{stream:stream,id:call.metadata.socketId,user:call.metadata.user}})
     })
   })
 
@@ -100,6 +108,10 @@ export const joinRoom = (stream, meetingId, user) => async(dispatch) => {
   socket.on('disconnected',({socketId,roomId,user})=>{
     console.log('disconencted event triggered', )
     dispatch({type:REMOVE_STREAM, payload:{id:socketId}});
+  })
+
+  socket.on('connection-lost',({socketId}) => {
+    console.log('connection lost by me', socketId);
   })
 }
 
@@ -118,5 +130,4 @@ export const endMeeting = (roomId,stream,user,socketId) => async(dispatch) => {
   peerServer.destroy()
   // call.close();
   dispatch({type:RESET, payload:null})
-  dispatch({type:CONNECTION_LOST, payload:false})
 }

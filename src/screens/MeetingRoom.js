@@ -23,7 +23,8 @@ import {
   muteAudio,
   muteVideo,
   endMeeting,
-  sendMessage
+  sendMessage,
+  makeSocketAlive
 } from '../store/action/videoAction';
 import FontAwesome from 'react-native-vector-icons/dist/FontAwesome';
 import FontAwesome5 from 'react-native-vector-icons/dist/FontAwesome5';
@@ -40,9 +41,11 @@ import {
   responsiveScreenWidth,
 } from 'react-native-responsive-dimensions';
 import Carousel, {Pagination} from 'react-native-snap-carousel';
+import BackgroundTimer from 'react-native-background-timer';
 
 const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
+const windowHeight = Dimensions.get('window').height; 
+let interval;
 
 class MeetingRoom extends Component {
   constructor(props) {
@@ -60,6 +63,7 @@ class MeetingRoom extends Component {
       refreshFlatList: false,
       height: Dimensions.get('window').height,
       width: Dimensions.get('window').width,
+      second:0
     };
   }
 
@@ -99,9 +103,24 @@ class MeetingRoom extends Component {
   }
 
   _handleAppStateChange = (nextAppState) => {
+    const {user,} = this.props.route.params;
+    const {video:{myStream,connectionLost}} = this.props;
+    const {video} = this.state;
+    console.log('this is the online status', nextAppState, interval);
     if (
       nextAppState === "active"
     ) {
+      myStream.stream._tracks[1].enabled = !video;
+      myStream.stream._tracks[1].enabled = video;
+      this.setState({video: video, stream: myStream});
+      this.props.muteVideo(myStream, user);
+      BackgroundTimer.clearInterval(interval)
+    }else{
+     interval = BackgroundTimer.setInterval(() => {
+      let index = 0;
+        console.log('this is the socket timing',index+1, connectionLost);
+        this.props.makeSocketAlive();
+      }, 5000);
     }
     this.setState({appStateVisible: nextAppState});
   };
@@ -186,7 +205,8 @@ class MeetingRoom extends Component {
   joinRoom = () => {
     const {meetingId, user} = this.props.route.params;
     const {stream} = this.state;
-    this.props.joinRoom(stream, meetingId, user);
+    let value = this.props.joinRoom(stream, meetingId, user);
+    console.log('join room value', value);
   };
 
   muteAudio = () => {
@@ -232,8 +252,6 @@ class MeetingRoom extends Component {
       numColumns = orientation === 'landscape' ? 2 : 1;
     }
 
-    console.log('items height and width=======>', itemHeight, srcWidth, numColumns, item);
-
     return (
       <View
         style={{
@@ -275,6 +293,7 @@ class MeetingRoom extends Component {
                         },
                       ]}
                     />
+                    <Text style={styles.videoName}>{getDefaultName(item.user)}</Text>
                   </>):null}
             </View>
           }
@@ -312,7 +331,6 @@ class MeetingRoom extends Component {
     this.chatSheet.close()
   }
   
-
   render() {
     const {
       video: {myStream, streams, remoteStreams, allStreams, final, messages, connectionLost, users},
@@ -354,7 +372,6 @@ class MeetingRoom extends Component {
     return (
       <Block style={[styles.parent, {height:height * 0.5}]}>
         <StatusBar hidden />
-        {/* {connectionLost===true && this.showLostConnection()} */}
         <RBSheet
           ref={(ref) => {
             this.RBSheet = ref;
@@ -509,6 +526,13 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: StatusBar.currentHeight,
   },
+  videoName: {
+    color:'white',
+    fontSize: 13,
+    position:'absolute',
+    bottom:0,
+    backgroundColor:'black'
+  },
   scrollView: {
     width: windowWidth,
   },
@@ -582,6 +606,7 @@ const styles = StyleSheet.create({
     // borderColor: 'white',
     // borderWidth: 1,
     flex: 1,
+    position:'relative',
     // alignItems: 'center',
   },
   mainRtc: {
@@ -600,4 +625,5 @@ export default connect(mapStateToProps, {
   muteVideo,
   endMeeting,
   sendMessage,
+  makeSocketAlive
 })(MeetingRoom);
